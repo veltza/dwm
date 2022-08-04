@@ -5,13 +5,13 @@ static const unsigned int borderpx  = 2;        /* border pixel of windows */
 static const unsigned int snap      = 20;       /* snap pixel */
 static const unsigned int gappih    = 8;        /* horiz inner gap between windows */
 static const unsigned int gappiv    = 8;        /* vert inner gap between windows */
-static const unsigned int gappoh    = 8;        /* horiz outer gap between windows and screen edge */
+static const unsigned int gappoh    = 7;        /* horiz outer gap between windows and screen edge */
 static const unsigned int gappov    = 10;       /* vert outer gap between windows and screen edge */
 static       int smartgaps          = 0;        /* 1 means no outer gap when there is only one window */
 static const unsigned int systraypinning = 0;   /* 0: sloppy systray follows selected monitor, >0: pin systray to monitor X */
 static const unsigned int systrayonleft =  0;   /* 0: systray in the right corner, >0: systray on left of status text */
 static const unsigned int systrayspacing = 2;   /* systray spacing */
-static const unsigned int systrayheight  = 20;  /* systray height */
+static const unsigned int systrayheight  = 19;  /* systray height */
 static const int          systraylpad    = 0;   /* systray left padding, -1 = auto (lrpad/2) */
 static const int          systrayrpad    = 2;   /* systray right padding, -1 = auto (lrpad/2) */
 static const int systraypinningfailfirst = 1;   /* 1: if pinning fails, display systray on the first monitor, False: display systray on the last monitor*/
@@ -19,9 +19,13 @@ static const int showsystray        = 1;        /* 0 means no systray */
 static const int showbar            = 1;        /* 0 means no bar */
 static const int topbar             = 1;        /* 0 means bottom bar */
 static const int focusonwheel       = 0;
-static const int user_bh            = 24;        /* 0 means that dwm will calculate bar height, >= 1 means dwm will user_bh as bar height */
+static const int user_bh            = 23;        /* 0 means that dwm will calculate bar height, >= 1 means dwm will user_bh as bar height */
 static const int statuslpad         = -1;        /* status text left padding, -1 = auto (lrpad/2) */
 static const int statusrpad         = 4;         /* status text right padding, -1 = auto (lrpad/2) */
+static const int statustpad         = 1;         /* status text top padding */
+static const int windowtitletpad    = 1;         /* window title top padding */
+static const int layoutlpad         = -4;        /* layout left padding */
+static const int layouttpad         = -1;        /* layout top padding */
 static const int attachmode         = 4;         /* default attach mode: 0 = dwm/top, 1 = below, 2 = above, 3 = bottom, 4 = aside */
 #define ICONSIZE 17                              /* icon size */
 #define ICONSPACING 5                            /* space between icon and title */
@@ -37,7 +41,7 @@ static const char *fonts[]          = {
 const int enablecolorfonts = 1;     /* color fonts need patched libxft (libxft-bgra) */
 
 static const char dmenufont[]       = "JetBrainsMono Nerd Font:size=10.5:antialias=true";
-static const char dmenuheight[]     = "24";
+static const char dmenuheight[]     = "23";
 
 #include "themes/grey-white.h"
 
@@ -87,7 +91,6 @@ static Sp scratchpads[] = {
 };
 
 /* tagging */
-//static const char *tags[] = { "", "", "", "", "", "", "", "", "" };
 static const char *tags[] = { "", "", "", "", "", "", "", "", "" };
 static const char *tagsalt[] = { "1", "2", "3", "4", "5", "6", "7", "8", "9" };
 
@@ -96,19 +99,20 @@ static const Rule rules[] = {
 	 *	WM_CLASS(STRING) = instance, class
 	 *	WM_NAME(STRING) = title
 	 */
-	/* class              instance    title       tags mask     switchtotag    isfloating   monitor */
-/*  { "Firefox",          NULL,       NULL,       1 << 1,        1,            0,           -1 }, */
-/*  { "Chromium-browser", NULL,       NULL,       1 << 1,        0,            0,           -1 }, */
-	{ "Gimp",             NULL,       NULL,       1 << 5,        0,            0,           -1 },
-	{ "Gnome-calculator", NULL,       NULL,            0,        0,            1,           -1 },
-	{ "Galculator",       NULL,       NULL,            0,        0,            1,           -1 },
-/*	{ "Qalculate",        NULL,       NULL,            0,        0,            1,           -1 }, */
-	{ "SpeedCrunch",      NULL,       NULL,            0,        0,            1,           -1 },
-	{ "mpv",              NULL,       NULL,            0,        0,            1,           -1 },
-	{ "Pavucontrol",      NULL,       NULL,            0,        0,            1,           -1 },
-	{ NULL,               "spterm",   NULL,      SPTAG(0),       0,            1,           -1 },
-	{ NULL,               "spfm",     NULL,      SPTAG(1),       0,            1,           -1 },
-	{ "Qalculate",        NULL,       NULL,      SPTAG(2),       0,            1,           -1 },
+	/* class                instance   title       tags mask     switchtotag    isfloating   monitor */
+/*	{ "Firefox",            NULL,      NULL,          1 << 1,        1,            0,           -1 }, */
+/*	{ "Chromium-browser",   NULL,      NULL,          1 << 1,        0,            0,           -1 }, */
+	{ NULL,                 NULL,      "LibreOffice", 1 << 3,        1,            0,           -1 },
+	{ "Gimp",               NULL,      NULL,          1 << 5,        0,            0,           -1 },
+	{ "Gnome-calculator",   NULL,      NULL,               0,        0,            1,           -1 },
+	{ "Galculator",         NULL,      NULL,               0,        0,            1,           -1 },
+/*	{ "Qalculate",          NULL,      NULL,               0,        0,            1,           -1 }, */
+	{ "mpv",                NULL,      NULL,               0,        0,            1,           -1 },
+	{ "Pavucontrol",        NULL,      NULL,               0,        0,            1,           -1 },
+	{ "flameshot",          NULL,      NULL,               0,        0,            1,           -1 },
+	{ NULL,                 "spterm",  NULL,         SPTAG(0),       0,            1,           -1 },
+	{ NULL,                 "spfm",    NULL,         SPTAG(1),       0,            1,           -1 },
+	{ "Qalculate",          NULL,      NULL,         SPTAG(2),       0,            1,           -1 },
 };
 
 /* layout(s) */
@@ -134,6 +138,37 @@ struct Pertag {
 #define FORCE_VSPLIT 1  /* nrowgrid layout: force two clients to always split vertically */
 #include "vanitygaps.c"
 #include "inplacerotate.c"
+
+enum {
+	LayoutTile,
+	LayoutMonocle,
+	LayoutSpiral,
+	LayoutDwindle,
+	LayoutDeck,
+	LayoutBstack,
+	LayoutBstackhoriz,
+	LayoutGrid,
+	LayoutNrowgrid,
+	LayoutHorizgrid,
+	LayoutGaplessgrid,
+	LayoutCenteredmaster,
+	LayoutCenteredfloatingmaster,
+	LayoutFloat
+};
+
+typedef struct {
+	int tag;      /* tag number */
+	int layout;   /* layout */
+	float mfact;  /* master / stack factor */
+	int gappih;   /* horizontal gap between windows */
+	int gappiv;   /* vertical gap between windows */
+	int gappoh;   /* horizontal outer gaps */
+	int gappov;   /* vertical outer gaps */
+} TagRule;
+
+static const TagRule tagrules[] = {
+	{ 4, LayoutTile, 0.5,  0,0,0,0 },
+};
 
 static const Layout layouts[] = {
 	/* symbol   arrange function */
@@ -175,19 +210,20 @@ static const Attach attachs[] = {
 
 /* helper for spawning shell commands in the pre dwm-5.0 fashion */
 #define SHCMD(cmd) { .v = (const char*[]){ "/bin/dash", "-c", cmd, NULL } }
+#define DMENUCMD(cmd) { cmd, "-m", dmenumon, "-fn", dmenufont, "-nb", normbgcolor, "-nf", normfgcolor, "-sb", selbgcolor, "-sf", selfgcolor, "-h", dmenuheight, NULL }
 
 /* commands */
 static char dmenumon[2]              = "0"; /* component of dmenucmd, manipulated in spawn() */
+static const char *dmenucmd[]        = DMENUCMD("dmenu_run");
+static const char *powermenu[]       = DMENUCMD("powermenu");
 static const char *attachmenucmd     = "dwm-attachmenu";
 static const char *layoutmenucmd     = "dwm-layoutmenu";
-static const char *dmenucmd[]        = { "dmenu_run", "-m", dmenumon, "-fn", dmenufont, "-nb", normbgcolor, "-nf", normfgcolor, "-sb", selbgcolor, "-sf", selfgcolor, "-h", dmenuheight, NULL };
 static const char *chromium[]        = { "chromium", NULL };
 static const char *firefox[]         = { "firefox", NULL };
 static const char *filemanager[]     = { "thunar", NULL };
 static const char *rofilauncher[]    = { "rofi-launcher", NULL };
 static const char *rofifind[]        = { "rofi-find", NULL };
-static const char *termcmd[]         = { "st", NULL };
-static const char *powermenu[]       = { "powermenu", "-m", dmenumon, "-fn", dmenufont, "-nb", normbgcolor, "-nf", normfgcolor, "-sb", selbgcolor, "-sf", selfgcolor, "-h", dmenuheight, NULL };
+static const char *terminal[]        = { "st", NULL };
 static const char *youtubempv[]      = { "ytmpv", NULL };
 static const char *printscrgui[]     = { "xfce4-screenshooter", NULL };
 static const char *printscrscr[]     = { "xfce4-screenshooter", "-f", NULL };
@@ -212,7 +248,7 @@ static Key keys[] = {
 	{ MODKEY|ShiftMask,             XK_d,      spawn,          {.v = rofifind } },
 	{ MODKEY|ControlMask,           XK_d,      spawn,          {.v = dmenucmd } },
 	{ MODKEY|ShiftMask,             XK_e,      spawn,          {.v = filemanager } },
-	{ MODKEY,                       XK_Return, spawn,          {.v = termcmd } },
+	{ MODKEY,                       XK_Return, spawn,          {.v = terminal } },
 	{ MODKEY,                       XK_w,      spawn,          {.v = chromium } },
 	{ MODKEY|ControlMask,           XK_w,      spawn,          {.v = firefox } },
 	{ MODKEY,                       XK_v,      spawn,          {.v = youtubempv } },
@@ -286,20 +322,13 @@ static Key keys[] = {
 	{ MODKEY|ShiftMask,             XK_q,      killclient,     {0} },
 	{ MODKEY|ControlMask,           XK_comma,  cyclelayout,    {.i = -1 } },
 	{ MODKEY|ControlMask,           XK_period, cyclelayout,    {.i = +1 } },
-	{ MODKEY,                       XK_u,      setlayout,      {.v = &layouts[0]} }, /* tile */
-	{ MODKEY|ShiftMask,             XK_u,      setlayout,      {.v = &layouts[5]} }, /* bstack */
-	{ MODKEY|ControlMask,           XK_u,      setlayout,      {.v = &layouts[8]} }, /* nrowgrid */
-	{ MODKEY,                       XK_i,      setlayout,      {.v = &layouts[1]} }, /* monocle */
-	{ MODKEY|ShiftMask,             XK_i,      setlayout,      {.v = &layouts[4]} }, /* deck */
-	{ MODKEY|ControlMask,           XK_i,      setlayout,      {.v = &layouts[11]} }, /* centeredmaster */
-	{ MODKEY|ShiftMask,             XK_g,      setlayout,      {.v = &layouts[13]} }, /* float */
-    /*
-	{ MODKEY,                       XK_F1,     setattach,      {.v = &attachs[0]} },
-	{ MODKEY,                       XK_F2,     setattach,      {.v = &attachs[3]} },
-	{ MODKEY,                       XK_F3,     setattach,      {.v = &attachs[2]} },
-	{ MODKEY,                       XK_F4,     setattach,      {.v = &attachs[1]} },
-	{ MODKEY|ShiftMask,             XK_F4,     setattach,      {.v = &attachs[4]} },
-    */
+	{ MODKEY,                       XK_u,      setlayout,      {.v = &layouts[LayoutTile]} },
+	{ MODKEY|ShiftMask,             XK_u,      setlayout,      {.v = &layouts[LayoutBstack]} },
+	{ MODKEY|ControlMask,           XK_u,      setlayout,      {.v = &layouts[LayoutNrowgrid]} },
+	{ MODKEY,                       XK_i,      setlayout,      {.v = &layouts[LayoutMonocle]} },
+	{ MODKEY|ShiftMask,             XK_i,      setlayout,      {.v = &layouts[LayoutDeck]} },
+	{ MODKEY|ControlMask,           XK_i,      setlayout,      {.v = &layouts[LayoutCenteredmaster]} },
+	{ MODKEY|ShiftMask,             XK_g,      setlayout,      {.v = &layouts[LayoutFloat]} },
 	{ MODKEY,                       XK_F1,     cycleattach,    {.i = +1 } },
 	{ MODKEY|ShiftMask,             XK_F1,     cycleattach,    {.i = -1 } },
 	{ MODKEY,                       XK_g,      togglefloating, {.i = 1 } },

@@ -283,7 +283,7 @@ static void moveresize(const Arg *arg);
 static void moveresizeedge(const Arg *arg);
 static Client *nexttiled(Client *c);
 static Client *nexttiledall(Client *c);
-static void pop(Client *);
+static void pop(Client *c);
 static void propertynotify(XEvent *e);
 static void pushclient(const Arg *arg);
 static void quit(const Arg *arg);
@@ -1024,7 +1024,7 @@ Monitor *
 createmon(void)
 {
 	Monitor *m;
-	unsigned int i;
+	int i, j;
 
 	m = ecalloc(1, sizeof(Monitor));
 	m->tagset[0] = m->tagset[1] = 1;
@@ -1064,7 +1064,27 @@ createmon(void)
 		m->pertag->prevzooms[i] = NULL;
 	}
 
-    return m;
+	for (i = 0; i < LENGTH(tagrules); i++) {
+		if ((j = tagrules[i].tag) > LENGTH(tags))
+			continue;
+		m->pertag->ltidxs[j][0] = &layouts[tagrules[i].layout];
+		m->pertag->mfacts[j] = tagrules[i].mfact > 0 ? tagrules[i].mfact : m->pertag->mfacts[j];
+		if (tagrules[i].gappih >= 0) {
+			m->pertag->gaps[j] =
+				((tagrules[i].gappoh & 0xFF) << 0) | ((tagrules[i].gappov & 0xFF) << 8) | ((tagrules[i].gappih & 0xFF) << 16) | ((tagrules[i].gappiv & 0xFF) << 24);
+		}
+		if (tagrules[i].tag == 1) {
+			m->mfact = m->pertag->mfacts[j];
+			m->lt[0] = m->pertag->ltidxs[j][0];
+			m->gappoh = (m->pertag->gaps[j] >> 0) & 0xff;
+			m->gappov = (m->pertag->gaps[j] >> 8) & 0xff;
+			m->gappih = (m->pertag->gaps[j] >> 16) & 0xff;
+			m->gappiv = (m->pertag->gaps[j] >> 24) & 0xff;
+			strncpy(m->ltsymbol, layouts[tagrules[i].layout].symbol, sizeof m->ltsymbol);
+		}
+	}
+
+	return m;
 }
 
 Client *
@@ -1210,7 +1230,7 @@ drawbar(Monitor *m)
 			tmp = *stc;
 			if (stp != stc) {
 				*stc = '\0';
-				x = drw_text(drw, x, 0, TTEXTW(stp), bh, 0, stp, 0);
+				x = drw_text(drw, x, statustpad, TTEXTW(stp), bh, 0, stp, 0);
 			}
 			if (tmp == '\0')
 				break;
@@ -1251,7 +1271,7 @@ drawbar(Monitor *m)
 	bae = x;
 
 	w = TEXTW(m->ltsymbol);
-	x = drw_text(drw, x - lrpad*10/25, 0, w, bh, lrpad / 2, m->ltsymbol, 0);
+	x = drw_text(drw, x + layoutlpad, layouttpad, w, bh, lrpad / 2, m->ltsymbol, 0);
 	ble = x;
 
 	if (m == selmon) {
@@ -1283,11 +1303,11 @@ drawbar(Monitor *m)
 				if (--remainder == 0)
 						tabw--;
 				#if SHOWWINICON
-				drw_text(drw, x, 0, tabw, bh, lrpad / 2 + (c->icon ? c->icw + ICONSPACING : 0), c->name, 0);
+				drw_text(drw, x, windowtitletpad, tabw, bh, lrpad / 2 + (c->icon ? c->icw + ICONSPACING : 0), c->name, 0);
 				if (c->icon)
 					drw_pic(drw, x + lrpad / 2, (bh - c->ich) / 2, c->icw, c->ich, c->icon);
 				#else
-				drw_text(drw, x, 0, tabw, bh, lrpad / 2, c->name, 0);
+				drw_text(drw, x, windowtitletpad, tabw, bh, lrpad / 2, c->name, 0);
 				#endif
 				if (c->isfloating) {
 					drw_rect(drw, x + boxs, boxs, boxw, boxw, c->isfixed, 0);
@@ -3215,9 +3235,7 @@ spawn(const Arg *arg)
 			close(ConnectionNumber(dpy));
 		setsid();
 		execvp(((char **)arg->v)[0], (char **)arg->v);
-		fprintf(stderr, "dwm: execvp %s", ((char **)arg->v)[0]);
-		perror(" failed");
-		exit(EXIT_SUCCESS);
+		die("dwm: execvp '%s' failed:", ((char **)arg->v)[0]);
 	}
 }
 
@@ -3572,6 +3590,7 @@ unmanage(Client *c, int destroyed)
 		wc.border_width = c->oldbw;
 		XGrabServer(dpy); /* avoid race conditions */
 		XSetErrorHandler(xerrordummy);
+		XSelectInput(dpy, c->win, NoEventMask);
 		XConfigureWindow(dpy, c->win, CWBorderWidth, &wc); /* restore border */
 		XUngrabButton(dpy, AnyButton, AnyModifier, c->win);
 		setclientstate(c, WithdrawnState);
