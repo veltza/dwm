@@ -1215,6 +1215,7 @@ drawbar(Monitor *m)
 		char *stc = stextc;
 		char *stp = stextc;
 		char tmp;
+		int blkw;
 
 		setfont(FontStatusMonitor);
 
@@ -1230,7 +1231,10 @@ drawbar(Monitor *m)
 			tmp = *stc;
 			if (stp != stc) {
 				*stc = '\0';
-				x = drw_text(drw, x, statustpad, TTEXTW(stp), bh, 0, stp, 0);
+				blkw = TTEXTW(stp);
+				if (statustpad > 0)
+					drw_rect(drw, x, 0, blkw, statustpad, 1, 1);
+				x = drw_text(drw, x, statustpad, blkw, bh, 0, stp, 0);
 			}
 			if (tmp == '\0')
 				break;
@@ -1302,6 +1306,8 @@ drawbar(Monitor *m)
 
 				if (--remainder == 0)
 						tabw--;
+				if (windowtitletpad > 0)
+					drw_rect(drw, x, 0, tabw, windowtitletpad, 1, 1);
 				#if SHOWWINICON
 				drw_text(drw, x, windowtitletpad, tabw, bh, lrpad / 2 + (c->icon ? c->icw + ICONSPACING : 0), c->name, 0);
 				if (c->icon)

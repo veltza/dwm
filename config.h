@@ -35,7 +35,7 @@ static const char *fonts[]          = {
     "Mononoki Nerd Font:size=11:antialias=true",        /* tags, layout */
     "Mononoki Nerd Font:size=10:antialias=true",        /* status monitor */
     "Fira Sans Dwm:size=10.3:antialias=true",           /* window titles */
-    //"Symbola:size=13:antialias=true",                 /* outline emojis */
+    //"Symbola Dwm:size=13.5:antialias=true",           /* outline emojis */
     "JoyPixels:size=10:antialias=true:autohint=true"    /* color emojis */
 };
 const int enablecolorfonts = 1;     /* color fonts need patched libxft (libxft-bgra) */
