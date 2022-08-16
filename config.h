@@ -35,10 +35,11 @@ static const char *fonts[]          = {
     "Mononoki Nerd Font:size=11:antialias=true",        /* tags, layout */
     "Mononoki Nerd Font:size=10:antialias=true",        /* status monitor */
     "Fira Sans Dwm:size=10.3:antialias=true",           /* window titles */
-    //"Symbola Dwm:size=13.5:antialias=true",           /* outline emojis */
+    //"Symbola:size=13.5:antialias=true",               /* outline emojis */
     "JoyPixels:size=10:antialias=true:autohint=true"    /* color emojis */
 };
-const int enablecolorfonts = 1;     /* color fonts need patched libxft (libxft-bgra) */
+const int enablecolorfonts = 1;     /* color fonts require patched libxft (libxft-bgra) */
+const int removevs16codepoints = 1; /* remove VS16 and zero-width-joiner codepoints and glyphs from emojis */
 
 static const char dmenufont[]       = "JetBrainsMono Nerd Font:size=10.5:antialias=true";
 static const char dmenuheight[]     = "23";
@@ -192,9 +193,9 @@ static const Layout layouts[] = {
 static const Attach attachs[] = {
 	/* symbol   attach function */
 	{ "",      attach },
-	{ "",      attachbottom },
-	{ "",      attachabove },
 	{ "",      attachbelow },
+	{ "",      attachabove },
+	{ "",      attachbottom },
 	{ "",      attachaside },
 };
 

@@ -17,6 +17,7 @@ static const unsigned char utfmask[UTF_SIZ + 1] = {0xC0, 0x80, 0xE0, 0xF0, 0xF8}
 static const long utfmin[UTF_SIZ + 1] = {       0,    0,  0x80,  0x800,  0x10000};
 static const long utfmax[UTF_SIZ + 1] = {0x10FFFF, 0x7F, 0x7FF, 0xFFFF, 0x10FFFF};
 extern const int enablecolorfonts;
+extern const int removevs16codepoints;
 
 static long
 utf8decodebyte(const char c, size_t *i)
@@ -325,10 +326,10 @@ drw_text(Drw *drw, int x, int y, unsigned int w, unsigned int h, unsigned int lp
 {
 	char buf[1024];
 	int ty;
-	unsigned int ew = 0;
+	unsigned int mw, ew = 0;
 	XftDraw *d = NULL;
 	Fnt *usedfont, *curfont, *nextfont;
-	size_t i, len;
+	int len, n, m;
 	int utf8strlen, utf8charlen, render = x || y || w || h;
 	long utf8codepoint = 0;
 	const char *utf8str;
@@ -336,7 +337,9 @@ drw_text(Drw *drw, int x, int y, unsigned int w, unsigned int h, unsigned int lp
 	FcPattern *fcpattern;
 	FcPattern *match;
 	XftResult result;
-	int charexists = 0;
+	int charexists = 0, overflow = 0;
+	static unsigned int ellipsis_w;
+	static Fnt *ellipsis_font;
 
 	if (!drw || (render && !drw->scheme) || !text || !drw->fonts)
 		return 0;
@@ -354,6 +357,11 @@ drw_text(Drw *drw, int x, int y, unsigned int w, unsigned int h, unsigned int lp
 	}
 
 	usedfont = drw->fonts;
+	if (usedfont != ellipsis_font) {
+		ellipsis_font = usedfont;
+		drw_font_getexts(ellipsis_font, "...", 3, &ellipsis_w, NULL);
+	}
+
 	while (1) {
 		utf8strlen = 0;
 		utf8str = text;
@@ -382,17 +390,39 @@ drw_text(Drw *drw, int x, int y, unsigned int w, unsigned int h, unsigned int lp
 		if (utf8strlen) {
 			drw_font_getexts(usedfont, utf8str, utf8strlen, &ew, NULL);
 			/* shorten text if necessary */
-			for (len = MIN(utf8strlen, sizeof(buf) - 1); len && ew > w; len--)
-				drw_font_getexts(usedfont, utf8str, len, &ew, NULL);
+			mw = (!*text) ? w : ((w > ellipsis_w) ? w - ellipsis_w : 0);
+			for (len = MIN(utf8strlen, sizeof(buf) - 1); len && ew > mw;) {
+				drw_font_getexts(usedfont, utf8str, --len, &ew, NULL);
+				mw = (w > ellipsis_w) ? w - ellipsis_w : 0;
+				overflow = 1;
+			}
 
 			if (len) {
-				memcpy(buf, utf8str, len);
-				buf[len] = '\0';
-				if (len < utf8strlen)
-					for (i = len; i && i > len - 3; buf[--i] = '.')
-						; /* NOP */
+				if (removevs16codepoints) {
+					for (n = 0, m = 0; m <= len-3;) {
+						/* VS16 = ef b8 8f, zero width joiner = e2 80 8d */
+						if ((unsigned char)utf8str[m] == 0xef &&
+							    (unsigned char)utf8str[m+1] == 0xb8 &&
+							    (unsigned char)utf8str[m+2] == 0x8f)
+							m += 3;
+						else if ((unsigned char)utf8str[m] == 0xe2 &&
+							    (unsigned char)utf8str[m+1] == 0x80 &&
+							    (unsigned char)utf8str[m+2] == 0x8d)
+							m += 3;
+						else
+							buf[n++] = utf8str[m++];
+					}
+					while (m < len) buf[n++] = utf8str[m++];
+					buf[n] = '\0';
+					if (n < len)
+						drw_font_getexts(usedfont, buf, n, &ew, NULL);
+					len = n;
+				} else {
+					memcpy(buf, utf8str, len);
+					buf[len] = '\0';
+				}
 
-				if (render) {
+				if (render && len) {
 					ty = y + (h - usedfont->h) / 2 + usedfont->xfont->ascent;
 					XftDrawStringUtf8(d, &drw->scheme[invert ? ColBg : ColFg],
 					                  usedfont->xfont, x, ty, (XftChar8 *)buf, len);
@@ -400,9 +430,19 @@ drw_text(Drw *drw, int x, int y, unsigned int w, unsigned int h, unsigned int lp
 				x += ew;
 				w -= ew;
 			}
+
+			if (overflow && ellipsis_w <= w) {
+				if (render) {
+					ty = y + (h - ellipsis_font->h) / 2 + ellipsis_font->xfont->ascent;
+					XftDrawStringUtf8(d, &drw->scheme[invert ? ColBg : ColFg],
+					                  ellipsis_font->xfont, x, ty, (XftChar8 *)"...", 3);
+				}
+				x += ellipsis_w;
+				w -= ellipsis_w;
+			}
 		}
 
-		if (!*text) {
+		if (!*text || overflow) {
 			break;
 		} else if (nextfont) {
 			charexists = 0;
