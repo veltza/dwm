@@ -15,6 +15,7 @@ static const unsigned int systrayheight  = 19;  /* systray height */
 static const int          systraylpad    = 0;   /* systray left padding, -1 = auto (lrpad/2) */
 static const int          systrayrpad    = 2;   /* systray right padding, -1 = auto (lrpad/2) */
 static const int systraypinningfailfirst = 1;   /* 1: if pinning fails, display systray on the first monitor, False: display systray on the last monitor*/
+static const int swallowfloating    = 0;        /* 1 means swallow floating windows by default */
 static const int showsystray        = 1;        /* 0 means no systray */
 static const int showbar            = 1;        /* 0 means no bar */
 static const int topbar             = 1;        /* 0 means bottom bar */
@@ -100,20 +101,23 @@ static const Rule rules[] = {
 	 *	WM_CLASS(STRING) = instance, class
 	 *	WM_NAME(STRING) = title
 	 */
-	/* class                instance   title       tags mask     switchtotag    isfloating   monitor */
-/*	{ "Firefox",            NULL,      NULL,          1 << 1,        1,            0,           -1 }, */
-/*	{ "Chromium-browser",   NULL,      NULL,          1 << 1,        0,            0,           -1 }, */
-	{ NULL,                 NULL,      "LibreOffice", 1 << 3,        1,            0,           -1 },
-	{ "Gimp",               NULL,      NULL,          1 << 5,        0,            0,           -1 },
-	{ "Gnome-calculator",   NULL,      NULL,               0,        0,            1,           -1 },
-	{ "Galculator",         NULL,      NULL,               0,        0,            1,           -1 },
-/*	{ "Qalculate",          NULL,      NULL,               0,        0,            1,           -1 }, */
-	{ "mpv",                NULL,      NULL,               0,        0,            1,           -1 },
-	{ "Pavucontrol",        NULL,      NULL,               0,        0,            1,           -1 },
-	{ "flameshot",          NULL,      NULL,               0,        0,            1,           -1 },
-	{ NULL,                 "spterm",  NULL,         SPTAG(0),       0,            1,           -1 },
-	{ NULL,                 "spfm",    NULL,         SPTAG(1),       0,            1,           -1 },
-	{ "Qalculate",          NULL,      NULL,         SPTAG(2),       0,            1,           -1 },
+	/* class                instance   title        tags mask    switchtotag    isfloating  isterminal  noswallow  monitor */
+	{ NULL,                 NULL,      "LibreOffice", 1 << 3,        1,            0,           0,        1,          -1 },
+	{ NULL,                 NULL,      "Soffice",     1 << 3,        1,            0,           0,        1,          -1 },
+	{ NULL,                 "soffice", NULL,          1 << 3,        1,            0,           0,        1,          -1 },
+	{ "Gimp",               NULL,      NULL,          1 << 5,        0,            0,           0,        0,          -1 },
+	{ "Firefox",            NULL,      NULL,               0,        0,            0,           0,        1,          -1 },
+	{ "Chromium",           NULL,      NULL,               0,        0,            0,           0,        1,          -1 },
+	{ "mpv",                NULL,      NULL,               0,        0,            0,           0,        0,          -1 },
+	{ "st-256color",        NULL,      NULL,               0,        0,            0,           1,        0,          -1 },
+	{ NULL,                 NULL,     "Event Tester",      0,        0,            0,           0,        1,          -1 }, /* xev */
+	{ "Gnome-calculator",   NULL,      NULL,               0,        0,            1,           0,        0,          -1 },
+	{ "Galculator",         NULL,      NULL,               0,        0,            1,           0,        0,          -1 },
+	{ "Pavucontrol",        NULL,      NULL,               0,        0,            1,           0,        0,          -1 },
+	{ "flameshot",          NULL,      NULL,               0,        0,            1,           0,        0,          -1 },
+	{ NULL,                 "spterm",  NULL,         SPTAG(0),       0,            1,           0,        0,          -1 },
+	{ NULL,                 "spfm",    NULL,         SPTAG(1),       0,            1,           0,        0,          -1 },
+	{ "Qalculate",          NULL,      NULL,         SPTAG(2),       0,            1,           0,        0,          -1 },
 };
 
 /* layout(s) */

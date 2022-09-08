@@ -30,6 +30,7 @@ This is my personal fork with following patches:
 + scratchpads
 + shiftviewclients
 + sticky
++ swallow
 + switchtag
 + systray
 + systray-dsblocks
