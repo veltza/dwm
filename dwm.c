@@ -97,6 +97,9 @@
 #define VERSION_MINOR               0
 #define XEMBED_EMBEDDED_VERSION (VERSION_MAJOR << 16) | VERSION_MINOR
 
+#define EXIT_QUIT     EXIT_FAILURE
+#define EXIT_RESTART  EXIT_SUCCESS
+
 /* enums */
 enum { CurNormal, CurHand, CurResize, CurMove, CurLast }; /* cursor */
 enum { NetSupported, NetWMName, NetWMIcon, NetWMState, NetWMCheck,
@@ -282,6 +285,7 @@ static int isprocessrunning(int pid);
 static void keypress(XEvent *e);
 static void keyrelease(XEvent *e);
 static void killclient(const Arg *arg);
+static void killscratchpads(void);
 static void layoutmenu(const Arg *arg);
 static void losefullscreen(Client *next);
 static void manage(Window w, XWindowAttributes *wa);
@@ -409,7 +413,7 @@ static void (*handler[LASTEvent]) (XEvent *) = {
 	[UnmapNotify] = unmapnotify
 };
 static Atom wmatom[WMLast], netatom[NetLast], xatom[XLast];
-static int exitcode = EXIT_FAILURE;
+static int exitcode = EXIT_QUIT;
 static int running = 1;
 static Cur *cursor[CurLast];
 static Clr **scheme;
@@ -1982,6 +1986,26 @@ killclient(const Arg *arg)
 }
 
 void
+killscratchpads(void)
+{
+	Client *c;
+	Monitor *m;
+
+	if (exitcode == EXIT_RESTART)
+		return;
+
+	for (m = mons; m; m = m->next) {
+		for (c = m->clients; c; c = c->next) {
+			if (c->tags & SPTAGMASK) {
+				selmon->sel = c;
+				XUnmapWindow(dpy, c->win);
+				killclient(NULL);
+			}
+		}
+	}
+}
+
+void
 layoutmenu(const Arg *arg) {
 	FILE *p;
 	char c[3], *s;
@@ -2542,9 +2566,9 @@ quit(const Arg *arg)
 
 	/* arg: 0 = quit, 1 = restart */
 	if (arg && arg->i == 1)
-		exitcode = EXIT_SUCCESS;
+		exitcode = EXIT_RESTART;
 	else
-		exitcode = EXIT_FAILURE;
+		exitcode = EXIT_QUIT;
 
 	running = 0;
 }
@@ -4500,8 +4524,8 @@ main(int argc, char *argv[])
 #endif /* __OpenBSD__ */
 	scan();
 	run();
+	killscratchpads();
 	cleanup();
 	XCloseDisplay(dpy);
 	return exitcode;
 }
-
