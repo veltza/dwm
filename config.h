@@ -28,7 +28,7 @@ static const int windowtitletpad    = 1;         /* window title top padding */
 static const int layoutlpad         = -4;        /* layout left padding */
 static const int layouttpad         = -1;        /* layout top padding */
 static const int attachmode         = 4;         /* default attach mode: 0 = dwm/top, 1 = below, 2 = above, 3 = bottom, 4 = aside */
-#define ICONSIZE 17                              /* icon size */
+#define ICONSIZE    17                           /* icon size */
 #define ICONSPACING 5                            /* space between icon and title */
 #define SHOWWINICON 1                            /* 0 means no winicon */
 
@@ -39,9 +39,11 @@ static const char *fonts[]          = {
     //"Symbola:size=13.5:antialias=true",               /* outline emojis */
     "JoyPixels:size=10:antialias=true:autohint=true"    /* color emojis */
 };
-const int enablecolorfonts = 1;     /* color fonts require patched libxft (libxft-bgra) */
-const int removevs16codepoints = 1; /* remove VS16 and zero-width-joiner codepoints and glyphs from emojis */
 
+const int enablecolorfonts          = 1;  /* color fonts require patched libxft (libxft-bgra) */
+const int removevs16codepoints      = 1;  /* remove VS16 and zero-width-joiner codepoints and glyphs from emojis */
+
+#define NOTIFYFONT                    "JetBrainsMono Nerd Font 12"
 static const char dmenufont[]       = "JetBrainsMono Nerd Font:size=10.5:antialias=true";
 static const char dmenuheight[]     = "23";
 
@@ -397,27 +399,30 @@ static Key keys[] = {
 /* button definitions */
 /* click can be ClkTagBar, ClkLtSymbol, ClkStatusText, ClkWinTitle, ClkClientWin, or ClkRootWin */
 static Button buttons[] = {
-	/* click                event mask      button          function        argument */
-	{ ClkAttSymbol,         0,              Button1,        setattach,      {0} },
-	{ ClkAttSymbol,         0,              Button3,        attachmenu,     {0} },
-	{ ClkLtSymbol,          0,              Button1,        setlayout,      {0} },
-	{ ClkLtSymbol,          0,              Button3,        layoutmenu,     {0} },
-	{ ClkWinTitle,          0,              Button1,        togglewin,      {0} },	
-	{ ClkWinTitle,          0,              Button2,        zoom,           {0} },
-	{ ClkWinTitle,          0,              Button3,        spawn,          {.v = xmenuapps } },
-	{ ClkStatusText,        0,              Button1,        sigdsblocks,    {.i = 1} },
-	{ ClkStatusText,        0,              Button2,        sigdsblocks,    {.i = 2} },
-	{ ClkStatusText,        0,              Button3,        sigdsblocks,    {.i = 3} },
-	{ ClkStatusText,        0,              Button4,        sigdsblocks,    {.i = 4} },
-	{ ClkStatusText,        0,              Button5,        sigdsblocks,    {.i = 5} },
-	{ ClkClientWin,         MODKEY,         Button1,        movemouse,      {0} },
-	{ ClkClientWin,         MODKEY,         Button2,        togglefloating, {0} },
-	{ ClkClientWin,         MODKEY,         Button3,        resizemouse,    {0} },
-	{ ClkTagBar,            0,              Button1,        view,           {0} },
-	{ ClkTagBar,            0,              Button3,        toggleview,     {0} },
-	{ ClkTagBar,            MODKEY,         Button1,        tag,            {0} },
-	{ ClkTagBar,            MODKEY,         Button3,        toggletag,      {0} },
-	{ ClkRootWin,           0,              Button3,        spawn,          {.v = xmenuapps } },
+	/* click                event mask          button      function        argument */
+	{ ClkAttSymbol,         0,                  Button1,    setattach,      {0} },
+	{ ClkAttSymbol,         0,                  Button3,    attachmenu,     {0} },
+	{ ClkLtSymbol,          0,                  Button1,    setlayout,      {0} },
+	{ ClkLtSymbol,          0,                  Button3,    layoutmenu,     {0} },
+	{ ClkWinTitle,          0,                  Button1,    togglewin,      {0} },
+	{ ClkWinTitle,          0,                  Button2,    zoom,           {0} },
+	{ ClkWinTitle,          0,                  Button3,    spawn,          {.v = xmenuapps } },
+	{ ClkStatusText,        0,                  Button1,    sigdsblocks,    {.i = 1} },
+	{ ClkStatusText,        0,                  Button2,    sigdsblocks,    {.i = 2} },
+	{ ClkStatusText,        0,                  Button3,    sigdsblocks,    {.i = 3} },
+	{ ClkStatusText,        0,                  Button4,    sigdsblocks,    {.i = 4} },
+	{ ClkStatusText,        0,                  Button5,    sigdsblocks,    {.i = 5} },
+	{ ClkClientWin,         MODKEY,             Button1,    movemouse,      {0} },
+	{ ClkClientWin,         MODKEY,             Button2,    togglefloating, {0} },
+	{ ClkClientWin,         MODKEY,             Button3,    resizemouse,    {0} },
+	{ ClkClientWin,         MODKEY|ShiftMask,   Button1,    dragmfact,      {0} },
+	{ ClkClientWin,         MODKEY|ShiftMask,   Button3,    dragcfact,      {0} },
+	{ ClkTagBar,            0,                  Button1,    view,           {0} },
+	{ ClkTagBar,            0,                  Button3,    toggleview,     {0} },
+	{ ClkTagBar,            MODKEY,             Button1,    tag,            {0} },
+	{ ClkTagBar,            MODKEY,             Button3,    toggletag,      {0} },
+	{ ClkRootWin,           0,                  Button3,    spawn,          {.v = xmenuapps } },
+	{ ClkRootWin,           MODKEY|ShiftMask,   Button1,    dragmfact,      {0} },
 };
 
 /* signal functions */

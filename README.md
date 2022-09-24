@@ -13,6 +13,8 @@ This is my personal fork with following patches:
 + bar-height
 + cfacts-vanitygaps
 + cyclelayouts
++ dragcfact
++ dragmfact
 + dwmc
 + fixborders
 + focusdir

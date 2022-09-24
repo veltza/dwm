@@ -101,7 +101,7 @@
 #define EXIT_RESTART  EXIT_SUCCESS
 
 /* enums */
-enum { CurNormal, CurHand, CurResize, CurMove, CurLast }; /* cursor */
+enum { CurNormal, CurHand, CurResize, CurMove, CurResizeHorzArrow, CurResizeVertArrow, CurLast }; /* cursor */
 enum { NetSupported, NetWMName, NetWMIcon, NetWMState, NetWMCheck,
        NetSystemTray, NetSystemTrayOP, NetSystemTrayOrientation, NetSystemTrayOrientationHorz,
        NetWMFullscreen, NetActiveWindow, NetWMWindowType,
@@ -256,6 +256,8 @@ static void destroynotify(XEvent *e);
 static void detach(Client *c);
 static void detachstack(Client *c);
 static Monitor *dirtomon(int dir);
+static void dragcfact(const Arg *arg);
+static void dragmfact(const Arg *arg);
 static void drawbar(Monitor *m);
 static void drawbars(void);
 /* static void enternotify(XEvent *e); */
@@ -1219,6 +1221,258 @@ dirtomon(int dir)
 }
 
 void
+dragcfact(const Arg *arg)
+{
+	unsigned int n, pos;
+	int prev_x, prev_y, dist_x, dist_y, inv_x = 1, inv_y = 1;
+	int px = 0, py = 0;
+	int nmaster;
+	float fact;
+	Client *c;
+	XEvent ev;
+	Time lasttime = 0;
+	Monitor *m = selmon;
+
+	for (n = 0, pos = 0, c = nexttiled(m->clients); c; c = nexttiled(c->next), n++) {
+		if (c == selmon->sel)
+			pos = n;
+	}
+	nmaster = (m->nmaster < n) ? m->nmaster : n;
+
+	if (!(c = selmon->sel))
+		return;
+	if (c->isfloating) {
+		resizemouse(arg);
+		return;
+	}
+	if (c->isfullscreen && !c->fakefullscreen) /* no support resizing fullscreen windows by mouse */
+		return;
+	restack(selmon);
+
+	if (n < 2)
+		return;
+	else if (m->lt[m->sellt]->arrange == &horizgrid && (pos == 0 && n == 3))
+		return;
+	else if (m->lt[m->sellt]->arrange != &horizgrid &&
+			((pos == 0 && nmaster == 1) || (pos == n-1 && n - nmaster == 1)))
+		return;
+	else if (m->lt[m->sellt]->arrange == &centeredmaster &&
+			((nmaster == 1 && (pos == 0 || n < 4 || (n == 4 && pos == n-2))) ||
+			 (nmaster > 0 && pos >= nmaster && (n - nmaster < 3 || (n - nmaster == 3 && pos == n-2)))))
+		return;
+	else if (m->lt[m->sellt]->arrange == &centeredfloatingmaster &&
+			((nmaster == 1 && pos == 0) || (n - nmaster == 1 && pos == n-1)))
+		return;
+	else if (m->lt[m->sellt]->arrange == &deck &&
+			(nmaster <= 1 || (nmaster > 1 && pos >= nmaster)))
+		return;
+	else if (!m->lt[m->sellt]->arrange
+			|| m->lt[m->sellt]->arrange == &dwindle
+			|| m->lt[m->sellt]->arrange == &gaplessgrid
+			|| m->lt[m->sellt]->arrange == &grid
+			|| m->lt[m->sellt]->arrange == &monocle
+			|| m->lt[m->sellt]->arrange == &nrowgrid
+			|| m->lt[m->sellt]->arrange == &spiral)
+		return;
+
+	if (XGrabPointer(dpy, root, False, MOUSEMASK, GrabModeAsync, GrabModeAsync,
+		None, cursor[CurResize]->cursor, CurrentTime) != GrabSuccess)
+		return;
+
+	if (m->lt[m->sellt]->arrange == &bstack) {
+		inv_x = px = (pos > 0 && (pos == n-1 || pos == nmaster-1)) ? -1 : 1;
+	} else if (m->lt[m->sellt]->arrange == &bstackhoriz) {
+		if (pos < nmaster) {
+			inv_x = px = (pos > 0 && pos == nmaster-1) ? -1 : 1;
+		} else {
+			inv_y = py = (pos == n-1) ? 1 : -1;
+		}
+	} else if (m->lt[m->sellt]->arrange == &centeredmaster) {
+		if (nmaster > 1 && pos < nmaster)
+			inv_y = py = (pos == nmaster-1) ? 1 : -1;
+		else
+			inv_y = py = (pos == n-1 || (pos == n-2 && nmaster > 0)) ? 1 : -1;
+	} else if (m->lt[m->sellt]->arrange == &centeredfloatingmaster) {
+		inv_x = px = (pos > 0 && (pos == n-1 || pos == nmaster-1)) ? -1 : 1;
+	} else if (m->lt[m->sellt]->arrange == &deck) {
+		inv_y = py = (pos == nmaster-1) ? 1 : -1;
+	} else if (m->lt[m->sellt]->arrange == &horizgrid) {
+		inv_x = px = (pos > 0 && (pos == n-1 || pos == n/2-1)) ? -1 : 1;
+	} else if (m->lt[m->sellt]->arrange == &tile) {
+		inv_y = py = (pos == n-1 || pos == nmaster-1) ? 1 : -1;
+	}
+
+	XWarpPointer(dpy, None, c->win, 0, 0, 0, 0, (!px) ? c->w/2 : (px < 0) ? 0 : c->w,
+	                                            (!py) ? c->h/2 : (py > 0) ? 0 : c->h);
+	prev_x = prev_y = -999999;
+
+	do {
+		XMaskEvent(dpy, MOUSEMASK|ExposureMask|SubstructureRedirectMask, &ev);
+		switch(ev.type) {
+		case ConfigureRequest:
+		case Expose:
+		case MapRequest:
+			handler[ev.type](&ev);
+			break;
+		case MotionNotify:
+			if ((ev.xmotion.time - lasttime) <= (1000 / 60))
+				continue;
+			lasttime = ev.xmotion.time;
+			if (prev_x == -999999) {
+				prev_x = inv_x * ev.xmotion.x_root;
+				prev_y = inv_y * ev.xmotion.y_root;
+			}
+
+			dist_x = inv_x * ev.xmotion.x - prev_x;
+			dist_y = inv_y * ev.xmotion.y - prev_y;
+
+			if (abs(dist_x) > abs(dist_y)) {
+				fact = (float) 4.0 * dist_x / c->mon->ww;
+			} else {
+				fact = (float) -4.0 * dist_y / c->mon->wh;
+			}
+
+			if (fact)
+				setcfact(&((Arg) { .f = fact }));
+
+			prev_x = inv_x * ev.xmotion.x;
+			prev_y = inv_y * ev.xmotion.y;
+			break;
+		}
+	} while (ev.type != ButtonRelease);
+
+	XWarpPointer(dpy, None, c->win, 0, 0, 0, 0, (!px) ? c->w/2 : (px < 0) ? 0 : c->w,
+	                                            (!py) ? c->h/2 : (py > 0) ? 0 : c->h);
+
+	XUngrabPointer(dpy, CurrentTime);
+	while (XCheckMaskEvent(dpy, EnterWindowMask, &ev));
+}
+
+void
+dragmfact(const Arg *arg)
+{
+	unsigned int n;
+	int py, px; // pointer coordinates
+	int ax, ay, aw, ah; // area position, width and height
+	int center = 0, horizontal = 0, mirror = 0, fixed = 0; // layout configuration
+	double fact;
+	Monitor *m;
+	XEvent ev;
+	Time lasttime = 0;
+
+	m = selmon;
+
+	int oh, ov, ih, iv;
+	getgaps(m, &oh, &ov, &ih, &iv, &n);
+
+	ax = m->wx;
+	ay = m->wy;
+	ah = m->wh;
+	aw = m->ww;
+
+	if (!n)
+		return;
+	else if (m->lt[m->sellt]->arrange == &centeredmaster && (fixed || n - m->nmaster > 1))
+		center = 1;
+	else if (m->lt[m->sellt]->arrange == &centeredfloatingmaster)
+		center = 1;
+	else if (m->lt[m->sellt]->arrange == &bstack)
+		horizontal = 1;
+	else if (m->lt[m->sellt]->arrange == &bstackhoriz)
+		horizontal = 1;
+
+	/* do not allow mfact to be modified under certain conditions */
+	if (!m->lt[m->sellt]->arrange                            // floating layout
+		|| (!fixed && m->nmaster && n <= m->nmaster)         // no master
+		|| m->lt[m->sellt]->arrange == &monocle
+		|| m->lt[m->sellt]->arrange == &grid
+		|| m->lt[m->sellt]->arrange == &horizgrid
+		|| m->lt[m->sellt]->arrange == &gaplessgrid
+		|| m->lt[m->sellt]->arrange == &nrowgrid
+	)
+		return;
+
+	ay += oh;
+	ax += ov;
+	aw -= 2*ov;
+	ah -= 2*oh;
+
+	if (center) {
+		if (horizontal) {
+			px = ax + aw / 2;
+			py = ay + ah / 2 + (ah - 2*ih) * (m->mfact / 2.0) + ih / 2;
+		} else { // vertical split
+			px = ax + aw / 2 + (aw - 2*iv) * m->mfact / 2.0 + iv / 2;
+			py = ay + ah / 2;
+		}
+	} else if (horizontal) {
+		px = ax + aw / 2;
+		if (mirror)
+			py = ay + (ah - ih) * (1.0 - m->mfact) + ih / 2;
+		else
+			py = ay + ((ah - ih) * m->mfact) + ih / 2;
+	} else { // vertical split
+		if (mirror)
+			px = ax + (aw - iv) * (1.0 - m->mfact) + iv / 2;
+		else
+			px = ax + ((aw - iv) * m->mfact) + iv / 2;
+		py = ay + ah / 2;
+	}
+
+	if (XGrabPointer(dpy, root, False, MOUSEMASK, GrabModeAsync, GrabModeAsync,
+		None, cursor[horizontal ? CurResizeVertArrow : CurResizeHorzArrow]->cursor, CurrentTime) != GrabSuccess)
+		return;
+	XWarpPointer(dpy, None, root, 0, 0, 0, 0, px, py);
+
+	do {
+		XMaskEvent(dpy, MOUSEMASK|ExposureMask|SubstructureRedirectMask, &ev);
+		switch(ev.type) {
+		case ConfigureRequest:
+		case Expose:
+		case MapRequest:
+			handler[ev.type](&ev);
+			break;
+		case MotionNotify:
+			if ((ev.xmotion.time - lasttime) <= (1000 / 40))
+				continue;
+			if (lasttime != 0) {
+				px = ev.xmotion.x;
+				py = ev.xmotion.y;
+			}
+			lasttime = ev.xmotion.time;
+
+			if (center)
+				if (horizontal)
+					if (py - ay > ah / 2)
+						fact = (double) 1.0 - (ay + ah - py - ih / 2) * 2 / (double) (ah - 2*ih);
+					else
+						fact = (double) 1.0 - (py - ay - ih / 2) * 2 / (double) (ah - 2*ih);
+				else
+					if (px - ax > aw / 2)
+						fact = (double) 1.0 - (ax + aw - px - iv / 2) * 2 / (double) (aw - 2*iv);
+					else
+						fact = (double) 1.0 - (px - ax - iv / 2) * 2 / (double) (aw - 2*iv);
+			else
+				if (horizontal)
+					fact = (double) (py - ay - ih / 2) / (double) (ah - ih);
+				else
+					fact = (double) (px - ax - iv / 2) / (double) (aw - iv);
+
+			if (!center && mirror)
+				fact = 1.0 - fact;
+
+			setmfact(&((Arg) { .f = 1.0 + fact }));
+			px = ev.xmotion.x;
+			py = ev.xmotion.y;
+			break;
+		}
+	} while (ev.type != ButtonRelease);
+
+	XUngrabPointer(dpy, CurrentTime);
+	while (XCheckMaskEvent(dpy, EnterWindowMask, &ev));
+}
+
+void
 drawbar(Monitor *m)
 {
 	int x, w, n = 0, scm;
@@ -1910,8 +2164,13 @@ hidewin(Client *c) {
 void
 incnmaster(const Arg *arg)
 {
+	char msg[256];
+	const char *cmd[] = { "/usr/bin/dunstify", "-t", "1500", "-r", "50000", "--icon=no-icon", "", msg, NULL };
+
 	selmon->nmaster = selmon->pertag->nmasters[selmon->pertag->curtag] = MAX(selmon->nmaster + arg->i, 0);
 	arrange(selmon);
+	snprintf(msg, sizeof msg, "<span font='" NOTIFYFONT "'> Masters: %i \n</span>", selmon->nmaster);
+	spawn(&((Arg){ .v = cmd }));
 }
 
 int
@@ -3053,13 +3312,18 @@ setcfact(const Arg *arg) {
 
 	c = selmon->sel;
 
-	if(!arg || !c || !selmon->lt[selmon->sellt]->arrange)
+	if (!arg || !c || !selmon->lt[selmon->sellt]->arrange)
 		return;
-	f = arg->f + c->cfact;
-	if(arg->f == 0.0)
+	if (!arg->f)
 		f = 1.0;
-	else if(f < 0.25 || f > 4.0)
-		return;
+	else if (arg->f > 4.0) // set fact absolutely
+		f = arg->f - 4.0;
+	else
+		f = arg->f + c->cfact;
+	if (f < 0.25)
+		f = 0.25;
+	else if (f > 4.0)
+		f = 4.0;
 	c->cfact = f;
 	arrange(selmon);
 }
@@ -3142,6 +3406,8 @@ setup(void)
 	cursor[CurHand] = drw_cur_create(drw, XC_hand2);
 	cursor[CurResize] = drw_cur_create(drw, XC_sizing);
 	cursor[CurMove] = drw_cur_create(drw, XC_fleur);
+	cursor[CurResizeHorzArrow] = drw_cur_create(drw, XC_sb_h_double_arrow);
+	cursor[CurResizeVertArrow] = drw_cur_create(drw, XC_sb_v_double_arrow);
 	/* init appearance */
 	scheme = ecalloc(LENGTH(colors), sizeof(Clr *));
 	for (i = 0; i < LENGTH(colors); i++)
