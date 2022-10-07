@@ -51,11 +51,11 @@ static const char dmenuheight[]     = "23";
 
 /* color schemes */
 enum { SchemeNorm,
-       SchemeCol1, SchemeCol2, SchemeCol3, SchemeCol4,
-       SchemeCol5, SchemeCol6, SchemeCol7, SchemeCol8,
-       SchemeCol9, SchemeCol10, SchemeCol11, SchemeCol12,
-       SchemeSel, SchemeSel1, SchemeTitle, SchemeTitleSel,
-       SchemeHid, SchemeHidSel };
+       SchemeCol1,  SchemeCol2,  SchemeCol3,  SchemeCol4, SchemeCol5,
+       SchemeCol6,  SchemeCol7,  SchemeCol8,  SchemeCol9, SchemeCol10,
+       SchemeCol11, SchemeCol12, SchemeCol13,
+       SchemeSel,   SchemeSel1,  SchemeTitle, SchemeTitleSel,
+       SchemeHid,   SchemeHidSel };
 
 static const char *colors[][3]      = {
 	/*               fg           bg           border   */
@@ -72,6 +72,7 @@ static const char *colors[][3]      = {
 	[SchemeCol10]    = { col10,            normbgcolor,      normbordercolor },
 	[SchemeCol11]    = { col11,            normbgcolor,      normbordercolor },
 	[SchemeCol12]    = { col12,            normbgcolor,      normbordercolor },
+	[SchemeCol13]    = { col13,            normbgcolor,      normbordercolor },
 	[SchemeSel]      = { selfgcolor,       selbgcolor,       selbordercolor  },
 	[SchemeSel1]     = { selfgcolor,       selbgcolor,       selbordercolor1 },
 	[SchemeTitle]    = { titlenormfgcolor, titlenormbgcolor, normbordercolor },
@@ -113,6 +114,7 @@ static const Rule rules[] = {
 	{ "mpv",                NULL,      NULL,               0,        0,            0,           0,        0,          -1 },
 	{ "st-256color",        NULL,      NULL,               0,        0,            0,           1,        0,          -1 },
 	{ NULL,                 NULL,     "Event Tester",      0,        0,            0,           0,        1,          -1 }, /* xev */
+	{ "Dragon-drop",        NULL,      NULL,               0,        0,            1,           0,        1,          -1 },
 	{ "Gnome-calculator",   NULL,      NULL,               0,        0,            1,           0,        0,          -1 },
 	{ "Galculator",         NULL,      NULL,               0,        0,            1,           0,        0,          -1 },
 	{ "Pavucontrol",        NULL,      NULL,               0,        0,            1,           0,        0,          -1 },

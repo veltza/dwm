@@ -25,7 +25,8 @@ static const char col6[]  = "#ff4000"; /* battery icon - charge:  0% .. 15% */
 static const char col7[]  = "#e8e800"; /* battery icon - charge: 16% .. 59% */
 static const char col8[]  = "#00e800"; /* battery icon - charge: 60% .. 100% */
 static const char col9[]  = "#f07800"; /* battery icon - charging */
-static const char col10[] = "#ff70b0"; /* calendar icon */
-static const char col11[] = "#ffffff"; /* network icon - up */
-static const char col12[] = "#787878"; /* network icon - down */
+static const char col10[] = "#00ff00"; /* battery icon - full and powered */
+static const char col11[] = "#ff70b0"; /* calendar icon */
+static const char col12[] = "#ffffff"; /* network icon - up */
+static const char col13[] = "#787878"; /* network icon - down */
 
