@@ -1115,7 +1115,7 @@ createmon(void)
 Client *
 createsystrayicon(XClientMessageEvent *cme)
 {
-	Client *c;
+	Client *c, **i;
 	pid_t pid;
 	Window win = cme->data.l[2];
 
@@ -1134,10 +1134,12 @@ createsystrayicon(XClientMessageEvent *cme)
 
 	if (!(c = (Client *)calloc(1, sizeof(Client))))
 		die("fatal: could not malloc() %u bytes\n", sizeof(Client));
+
+	for (i = &systray->icons; !systrayonleft && *i; i = &(*i)->next);
 	c->win = win;
 	c->pid = pid;
-	c->next = systray->icons;
-	systray->icons = c;
+	c->next = *i;
+	*i = c;
 	return c;
 }
 
@@ -1282,11 +1284,10 @@ dragcfact(const Arg *arg)
 	if (m->lt[m->sellt]->arrange == &bstack) {
 		inv_x = px = (pos > 0 && (pos == n-1 || pos == nmaster-1)) ? -1 : 1;
 	} else if (m->lt[m->sellt]->arrange == &bstackhoriz) {
-		if (pos < nmaster) {
+		if (pos < nmaster)
 			inv_x = px = (pos > 0 && pos == nmaster-1) ? -1 : 1;
-		} else {
+		else
 			inv_y = py = (pos == n-1) ? 1 : -1;
-		}
 	} else if (m->lt[m->sellt]->arrange == &centeredmaster) {
 		if (nmaster > 1 && pos < nmaster)
 			inv_y = py = (pos == nmaster-1) ? 1 : -1;

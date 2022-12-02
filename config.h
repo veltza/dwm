@@ -108,7 +108,8 @@ static const Rule rules[] = {
 	{ NULL,                 NULL,      "LibreOffice", 1 << 3,        1,            0,           0,        1,          -1 },
 	{ NULL,                 NULL,      "Soffice",     1 << 3,        1,            0,           0,        1,          -1 },
 	{ NULL,                 "soffice", NULL,          1 << 3,        1,            0,           0,        1,          -1 },
-	{ "Gimp",               NULL,      NULL,          1 << 5,        0,            0,           0,        0,          -1 },
+	{ "Thunar",             NULL,      NULL,          1 << 2,        1,            0,           0,        1,          -1 },
+	{ "Gimp",               NULL,      NULL,          1 << 5,        0,            0,           0,        1,          -1 },
 	{ "Firefox",            NULL,      NULL,               0,        0,            0,           0,        1,          -1 },
 	{ "Chromium",           NULL,      NULL,               0,        0,            0,           0,        1,          -1 },
 	{ "mpv",                NULL,      NULL,               0,        0,            0,           0,        0,          -1 },
@@ -236,7 +237,7 @@ static const char *terminal[]        = { "st", NULL };
 static const char *youtubempv[]      = { "ytmpv", NULL };
 static const char *printscrgui[]     = { "xfce4-screenshooter", NULL };
 static const char *printscrscr[]     = { "xfce4-screenshooter", "-f", NULL };
-static const char *printscrwin[]     = { "xfce4-screenshooter", "-w", NULL };
+static const char *printscrwin[]     = { "xfce4-screenshooter", "-w", "--no-border", NULL };
 static const char *printscrsel[]     = { "flameshot", "gui", NULL };
 static const char *backlightup1[]    = { "sigdsblocks", "7", "+1", NULL };      /*  +1%  */
 static const char *backlightdown1[]  = { "sigdsblocks", "7", "-1", NULL };      /*  -1%  */
@@ -255,7 +256,7 @@ static Key keys[] = {
 	/* modifier                     key        function        argument */
 	{ MODKEY,                       XK_d,      spawn,          {.v = rofilauncher } },
 	{ MODKEY|ShiftMask,             XK_d,      spawn,          {.v = rofifind } },
-	{ MODKEY|ControlMask,           XK_d,      spawn,          {.v = dmenucmd } },
+	{ MODKEY,                       XK_p,      spawn,          {.v = dmenucmd } },
 	{ MODKEY|ShiftMask,             XK_e,      spawn,          {.v = filemanager } },
 	{ MODKEY,                       XK_Return, spawn,          {.v = terminal } },
 	{ MODKEY,                       XK_w,      spawn,          {.v = chromium } },
