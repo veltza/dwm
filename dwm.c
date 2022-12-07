@@ -97,8 +97,10 @@
 #define VERSION_MINOR               0
 #define XEMBED_EMBEDDED_VERSION (VERSION_MAJOR << 16) | VERSION_MINOR
 
-#define EXIT_QUIT     EXIT_FAILURE
-#define EXIT_RESTART  EXIT_SUCCESS
+#define EXIT_QUIT     EXIT_SUCCESS
+#define EXIT_RESTART  100
+#define EXIT_POWEROFF 101
+#define EXIT_REBOOT   102
 
 /* enums */
 enum { CurNormal, CurHand, CurResize, CurMove, CurResizeHorzArrow, CurResizeVertArrow, CurLast }; /* cursor */
@@ -2824,12 +2826,7 @@ quit(const Arg *arg)
 		}
 	}
 
-	/* arg: 0 = quit, 1 = restart */
-	if (arg && arg->i == 1)
-		exitcode = EXIT_RESTART;
-	else
-		exitcode = EXIT_QUIT;
-
+	exitcode = arg ? arg->i : EXIT_QUIT;
 	running = 0;
 }
 

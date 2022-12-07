@@ -225,7 +225,7 @@ static const Attach attachs[] = {
 /* commands */
 static char dmenumon[2]              = "0"; /* component of dmenucmd, manipulated in spawn() */
 static const char *dmenucmd[]        = DMENUCMD("dmenu_run");
-static const char *powermenu[]       = DMENUCMD("powermenu");
+static const char *powermenu[]       = DMENUCMD("dwm-powermenu");
 static const char *attachmenucmd     = "dwm-attachmenu";
 static const char *layoutmenucmd     = "dwm-layoutmenu";
 static const char *chromium[]        = { "chromium", NULL };
@@ -432,7 +432,19 @@ static Button buttons[] = {
 void
 restart(const Arg *arg)
 {
-	quit(&((Arg){.i = 1}));
+	quit(&((Arg){.i = EXIT_RESTART}));
+}
+
+void
+poweroff(const Arg *arg)
+{
+	quit(&((Arg){.i = EXIT_POWEROFF}));
+}
+
+void
+reboot(const Arg *arg)
+{
+	quit(&((Arg){.i = EXIT_REBOOT}));
 }
 
 void
@@ -449,6 +461,7 @@ static Signal signals[] = {
 	/* signum           function */
 	{ "quit",           quit },
 	{ "restart",        restart },
+	{ "poweroff",       poweroff },
+	{ "reboot",         reboot },
 	{ "refreshsystray", refreshsystrayhandler },
 };
-
