@@ -252,7 +252,7 @@ static const char *xmenuapps[]       = { "xmenu-apps", NULL };
 static const char *lock[]            = { "dwm-lock", "forcelock", NULL };
 
 #include <X11/XF86keysym.h>
-static Key keys[] = {
+static const Key keys[] = {
 	/* modifier                     key        function        argument */
 	{ MODKEY,                       XK_d,      spawn,          {.v = rofilauncher } },
 	{ MODKEY|ShiftMask,             XK_d,      spawn,          {.v = rofifind } },
@@ -401,7 +401,7 @@ static Key keys[] = {
 
 /* button definitions */
 /* click can be ClkTagBar, ClkLtSymbol, ClkStatusText, ClkWinTitle, ClkClientWin, or ClkRootWin */
-static Button buttons[] = {
+static const Button buttons[] = {
 	/* click                event mask          button      function        argument */
 	{ ClkAttSymbol,         0,                  Button1,    setattach,      {0} },
 	{ ClkAttSymbol,         0,                  Button3,    attachmenu,     {0} },
