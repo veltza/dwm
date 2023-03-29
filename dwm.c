@@ -291,6 +291,7 @@ static void keyrelease(XEvent *e);
 static void killclient(const Arg *arg);
 static void killscratchpads(void);
 static void layoutmenu(const Arg *arg);
+static void left_or_master(const Arg *arg);
 static void losefullscreen(Client *next);
 static void manage(Window w, XWindowAttributes *wa);
 static void mappingnotify(XEvent *e);
@@ -316,6 +317,7 @@ static void resizeclient(Client *c, int x, int y, int w, int h);
 static void resizemouse(const Arg *arg);
 static void resizerequest(XEvent *e);
 static void restack(Monitor *m);
+static void right_or_stack(const Arg *arg);
 static void run(void);
 static void scan(void);
 static int sendevent(Window w, Atom proto, int m, long d0, long d1, long d2, long d3, long d4);
@@ -346,6 +348,7 @@ static int swapclients(Client *a, Client *b);
 static void tag(const Arg *arg);
 static void tagmon(const Arg *arg);
 static Client *termforwin(const Client *c);
+static int tilepos(Client *c);
 static void togglealttag();
 static void togglebar(const Arg *arg);
 static void togglefakefullscreen(const Arg *arg);
@@ -2295,6 +2298,48 @@ layoutmenu(const Arg *arg) {
 	setlayout(&((Arg) { .v = &layouts[i] }));
 }
 
+/**
+ * Tile and deck layouts:
+ *   Switch to the master area (left column) and focus on the previously selected master client
+ * Monocle layout:
+ *   Focus on the previous client
+ * Other layouts:
+ *   Focus on a client on the left side
+ */
+void
+left_or_master(const Arg *arg)
+{
+	Monitor *m = selmon;
+	Client *c, *sel = m->sel;
+
+	if (m->lt[m->sellt]->arrange == &monocle) {
+		focusstackvis(&((Arg) { .i = -1 }));
+		return;
+	}
+
+	if ((m->lt[m->sellt]->arrange != &tile &&
+		 m->lt[m->sellt]->arrange != &deck) ||
+		(sel && sel->isfloating)) {
+		focusdir(&((Arg) { .i = 0 }));
+		return;
+	}
+
+	if (!sel || (sel->isfullscreen && sel->fakefullscreen != 1))
+		return;
+
+	if (m->nmaster < 1 || tilepos(sel) < m->nmaster)
+		return;
+
+	for (c = m->stack; c; c = c->snext) {
+		if (c != sel && ISVISIBLE(c) && !c->isfloating && tilepos(c) < m->nmaster) {
+			focus(c);
+			if (HIDDEN(c))
+				showwin(c);
+			break;
+		}
+	}
+}
+
 void
 losefullscreen(Client *next)
 {
@@ -3056,6 +3101,48 @@ restack(Monitor *m)
 	while (XCheckMaskEvent(dpy, EnterWindowMask, &ev));
 }
 
+/**
+ * Tile and deck layouts:
+ *   Switch to the stack area (right column) and focus on the previously selected stacked client
+ * Monocle layout:
+ *   Focus on the next client
+ * Other layouts:
+ *   Focus on a client on the right side
+ */
+void
+right_or_stack(const Arg *arg)
+{
+	Monitor *m = selmon;
+	Client *c, *sel = m->sel;
+
+	if (m->lt[m->sellt]->arrange == &monocle) {
+		focusstackvis(&((Arg) { .i = 1 }));
+		return;
+	}
+
+	if ((m->lt[m->sellt]->arrange != &tile &&
+		 m->lt[m->sellt]->arrange != &deck) ||
+		(sel && sel->isfloating)) {
+		focusdir(&((Arg) { .i = 1 }));
+		return;
+	}
+
+	if (!sel || (sel->isfullscreen && sel->fakefullscreen != 1))
+		return;
+
+	if (m->nmaster < 1 || tilepos(sel) >= m->nmaster)
+		return;
+
+	for (c = m->stack; c; c = c->snext) {
+		if (c != sel && ISVISIBLE(c) && !c->isfloating && tilepos(c) >= m->nmaster) {
+			focus(c);
+			if (HIDDEN(c))
+				showwin(c);
+			break;
+		}
+	}
+}
+
 void
 run(void)
 {
@@ -3724,6 +3811,22 @@ termforwin(const Client *w)
 	}
 
 	return NULL;
+}
+
+/* Return the tile position of a tiled client */
+int
+tilepos(Client *c)
+{
+	int i;
+	Client *t;
+
+	if (!c || c->isfloating)
+		return -1;
+
+	for (i = 0, t = nexttiledall(selmon->clients); t && t != c; t = nexttiledall(t->next))
+		i += HIDDEN(t) ? 0 : 1;
+
+	return t ? i : -1;
 }
 
 void
@@ -4756,12 +4859,23 @@ zoomswap(const Arg *arg)
 		for (i = c; i && i != p; i = nexttiledall(i->next));
 		if (!i || c == p)
 			p = nexttiled(c->next);
+		if (selmon->lt[selmon->sellt]->arrange == &deck && selmon->nmaster > 0
+			&& (selmon->nmaster == 1 || !p || tilepos(p) >= selmon->nmaster)) {
+			for (p = selmon->stack; p; p = p->snext) {
+				if (c != p && ISVISIBLE(p) && !p->isfloating && tilepos(p) >= selmon->nmaster)
+					break;
+			}
+		}
 	} else {
 		p = c;
 		c = nexttiled(selmon->clients);
 	}
 
 	if (swapclients(c, p)) {
+		i = selmon->sel;
+		detachstack(c);
+		attachstack(c);
+		selmon->sel = i;
 		focus(p);
 		if (HIDDEN(p))
 			showwin(p);
