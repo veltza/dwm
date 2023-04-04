@@ -236,7 +236,7 @@ static const char *filemanager[]     = { "thunar", NULL };
 static const char *rofilauncher[]    = { "rofi-launcher", NULL };
 static const char *rofifind[]        = { "rofi-find", NULL };
 static const char *terminal[]        = { "st", NULL };
-static const char *youtubempv[]      = { "ytmpv", NULL };
+/* static const char *youtubempv[]      = { "ytmpv", NULL }; */
 static const char *printscrgui[]     = { "xfce4-screenshooter", NULL };
 static const char *printscrscr[]     = { "xfce4-screenshooter", "-f", NULL };
 static const char *printscrwin[]     = { "xfce4-screenshooter", "-w", "--no-border", NULL };
@@ -264,7 +264,8 @@ static const Key keys[] = {
 	{ MODKEY,                       XK_w,      spawn,          {.v = chromium } },
 	{ MODKEY|ControlMask,           XK_w,      spawn,          {.v = firefox } },
 	{ MODKEY|ControlMask|ShiftMask, XK_w,      spawn,          {.v = firefoxpriv } },
-	{ MODKEY,                       XK_v,      spawn,          {.v = youtubempv } },
+/*	{ MODKEY,                       XK_v,      spawn,          {.v = youtubempv } }, */
+	{ MODKEY,                       XK_v,      spawn,          SHCMD("ytmpv") },
 	{ MODKEY,                       XK_b,      togglebar,      {0} },
 	{ MODKEY,                       XK_h,      left_or_master, {0} },
 	{ MODKEY,                       XK_l,      right_or_stack, {0} },
