@@ -22,7 +22,7 @@ static const int topbar             = 1;        /* 0 means bottom bar */
 static const int focusonwheel       = 0;
 static const int user_bh            = 23;        /* 0 means that dwm will calculate bar height, >= 1 means dwm will user_bh as bar height */
 static const int statuslpad         = -1;        /* status text left padding, -1 = auto (lrpad/2) */
-static const int statusrpad         = 4;         /* status text right padding, -1 = auto (lrpad/2) */
+static const int statusrpad         = 2;         /* status text right padding, -1 = auto (lrpad/2) */
 static const int statustpad         = 1;         /* status text top padding */
 static const int windowtitletpad    = 1;         /* window title top padding */
 static const int layoutlpad         = -4;        /* layout left padding */
@@ -236,7 +236,6 @@ static const char *filemanager[]     = { "thunar", NULL };
 static const char *rofilauncher[]    = { "rofi-launcher", NULL };
 static const char *rofifind[]        = { "rofi-find", NULL };
 static const char *terminal[]        = { "st", NULL };
-/* static const char *youtubempv[]      = { "ytmpv", NULL }; */
 static const char *printscrgui[]     = { "xfce4-screenshooter", NULL };
 static const char *printscrscr[]     = { "xfce4-screenshooter", "-f", NULL };
 static const char *printscrwin[]     = { "xfce4-screenshooter", "-w", "--no-border", NULL };
@@ -264,7 +263,6 @@ static const Key keys[] = {
 	{ MODKEY,                       XK_w,      spawn,          {.v = chromium } },
 	{ MODKEY|ControlMask,           XK_w,      spawn,          {.v = firefox } },
 	{ MODKEY|ControlMask|ShiftMask, XK_w,      spawn,          {.v = firefoxpriv } },
-/*	{ MODKEY,                       XK_v,      spawn,          {.v = youtubempv } }, */
 	{ MODKEY,                       XK_v,      spawn,          SHCMD("ytmpv") },
 	{ MODKEY,                       XK_b,      togglebar,      {0} },
 	{ MODKEY,                       XK_h,      left_or_master, {0} },

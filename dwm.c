@@ -2069,7 +2069,7 @@ getsystraywidth()
 				w += i->w + systrayspacing;
 		}
 	}
-	return w ? w - systrayspacing + LTPAD + RTPAD : 1;
+	return w ? w - systrayspacing + LTPAD + RTPAD : LTPAD + RTPAD;
 }
 
 int
@@ -4587,7 +4587,7 @@ updatesystray(void)
 				i->mon = m;
 		}
 	}
-	w = w ? w + RTPAD : 1;
+	w = w ? w + RTPAD : LTPAD + RTPAD;
 	x -= w;
 	XMoveResizeWindow(dpy, systray->win, x, m->by, w, bh);
 	wc.x = x; wc.y = m->by; wc.width = w; wc.height = bh;
