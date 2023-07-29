@@ -344,6 +344,7 @@ static Monitor *systraytomon(Monitor *m);
 static int swallow(Client *p, Client *c);
 static Client *swallowingclient(Window w);
 static int swapclients(Client *a, Client *b);
+static void swapfocus(const Arg *arg);
 static void tag(const Arg *arg);
 static void tagmon(const Arg *arg);
 static Client *termforwin(const Client *c);
@@ -666,33 +667,6 @@ attachaside(Client *c)
 	c->next = m->next;
 	m->next = c;
 }
-
-/*
-void
-attachaside(Client *c)
-{
-	int n;
-	Client *i, *m = NULL;
-
-	if (!c->mon->nmaster) {
-		attach(c);
-		return;
-	}
-
-	for (n = 0, i = c->mon->clients; i && n < c->mon->nmaster; i = i->next) {
-		if (!i->isfloating && ISVISIBLE(i) && !HIDDEN(i)) {
-			m = i;
-			n++;
-		}
-	}
-	if (!m) {
-		attachbottom(c);
-		return;
-	}
-	c->next = m->next;
-	m->next = c;
-}
-*/
 
 void
 attachbelow(Client *c)
@@ -3768,6 +3742,23 @@ swapclients(Client *a, Client *b)
 		*pb = a;
 	}
 	return 1;
+}
+
+void
+swapfocus(const Arg *arg)
+{
+	Client *c, *sel = selmon->sel;
+
+	for (c = selmon->stack; c && (c == sel || !ISVISIBLE(c)); c = c->snext);
+
+	if (c) {
+		focus(c);
+		if (HIDDEN(c)) {
+			showwin(c);
+		} else {
+			restack(selmon);
+		}
+	}
 }
 
 void

@@ -32,7 +32,7 @@ static const int attachmode         = 4;         /* default attach mode: 0 = dwm
 #define ICONSPACING 5                            /* space between icon and title */
 #define SHOWWINICON 1                            /* 0 means no winicon */
 
-static const char *fonts[]          = { 
+static const char *fonts[]          = {
     "Mononoki Nerd Font:size=11:antialias=true",        /* tags, layout */
     "Mononoki Nerd Font:size=10:antialias=true",        /* status monitor */
     "Fira Sans Dwm:size=10.3:antialias=true",           /* window titles */
@@ -116,6 +116,7 @@ static const Rule rules[] = {
 	{ "st-256color",        NULL,      NULL,               0,        0,            0,           1,        0,          -1 },
 	{ NULL,                 NULL,     "Event Tester",      0,        0,            0,           0,        1,          -1 }, /* xev */
 	{ "Dragon-drop",        NULL,      NULL,               0,        0,            1,           0,        1,          -1 },
+	{ "Pinentry-gtk-2",     NULL,      NULL,               0,        0,            1,           0,        1,          -1 },
 	{ "Gnome-calculator",   NULL,      NULL,               0,        0,            1,           0,        0,          -1 },
 	{ "Galculator",         NULL,      NULL,               0,        0,            1,           0,        0,          -1 },
 	{ "Pavucontrol",        NULL,      NULL,               0,        0,            1,           0,        0,          -1 },
@@ -234,6 +235,7 @@ static const char *firefox[]         = { "firefox", NULL };
 static const char *firefoxpriv[]     = { "firefox", "--private", NULL };
 static const char *filemanager[]     = { "thunar", NULL };
 static const char *rofilauncher[]    = { "rofi-launcher", NULL };
+static const char *rofiemoji[]       = { "rofi-emoji", NULL };
 static const char *rofifind[]        = { "rofi-find", NULL };
 static const char *terminal[]        = { "st", NULL };
 static const char *printscrgui[]     = { "xfce4-screenshooter", NULL };
@@ -331,11 +333,15 @@ static const Key keys[] = {
 	{ MODKEY|Mod4Mask|ShiftMask,    XK_9,      incrovgaps,     {.i = -1 } },
 */
 	{ MODKEY,                       XK_Tab,    view,           {0} },
+/*
 	{ Alt,                          XK_Tab,    shiftviewclients, {.i = +1} },
 	{ Alt|ShiftMask,                XK_Tab,    shiftviewclients, {.i = -1} },
+*/
+	{ Alt,                          XK_Tab,    swapfocus,      {0} },
 	{ MODKEY|ShiftMask,             XK_q,      killclient,     {0} },
 	{ MODKEY|ControlMask,           XK_comma,  cyclelayout,    {.i = -1 } },
 	{ MODKEY|ControlMask,           XK_period, cyclelayout,    {.i = +1 } },
+	{ MODKEY,                       XK_period, spawn,          {.v = rofiemoji } },
 	{ MODKEY,                       XK_u,      setlayout,      {.v = &layouts[LayoutTile]} },
 	{ MODKEY|ShiftMask,             XK_u,      setlayout,      {.v = &layouts[LayoutBstack]} },
 	{ MODKEY|ControlMask,           XK_u,      setlayout,      {.v = &layouts[LayoutNrowgrid]} },
