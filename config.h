@@ -33,11 +33,11 @@ static const int attachmode         = 4;         /* default attach mode: 0 = dwm
 #define SHOWWINICON 1                            /* 0 means no winicon */
 
 static const char *fonts[]          = {
-    "Mononoki Nerd Font:size=11:antialias=true",        /* tags, layout */
-    "Mononoki Nerd Font:size=10:antialias=true",        /* status monitor */
-    "Fira Sans Dwm:size=10.3:antialias=true",           /* window titles */
-    //"Symbola:size=13.5:antialias=true",               /* outline emojis */
-    "JoyPixels:size=10:antialias=true:autohint=true"    /* color emojis */
+    "Mononoki Nerd Font:size=11:antialias=true",            /* tags, layout */
+    "Mononoki Nerd Font:size=10:antialias=true",            /* status monitor */
+    "Fira Sans Dwm:size=10.3:antialias=true",               /* window titles */
+    //"Symbola:size=13.5:antialias=true",                   /* outline emojis */
+    "Noto Color Emoji:size=10:antialias=true:autohint=true" /* color emojis */
 };
 
 const int enablecolorfonts          = 1;  /* color fonts require patched libxft (libxft-bgra) */
@@ -232,7 +232,7 @@ static const char *attachmenucmd     = "dwm-attachmenu";
 static const char *layoutmenucmd     = "dwm-layoutmenu";
 static const char *chromium[]        = { "chromium", NULL };
 static const char *firefox[]         = { "firefox", NULL };
-static const char *firefoxpriv[]     = { "firefox", "--private", NULL };
+static const char *firefoxpriv[]     = { "firefox", "--private-window", NULL };
 static const char *filemanager[]     = { "thunar", NULL };
 static const char *rofilauncher[]    = { "rofi-launcher", NULL };
 static const char *rofiemoji[]       = { "rofi-emoji", NULL };
@@ -404,9 +404,6 @@ static const Key keys[] = {
 	{ Alt|ControlMask,              XK_l,      spawn,          {.v = lock } },
 	{ MODKEY|ShiftMask|ControlMask, XK_r,      spawn,          SHCMD("dwm-restart") },
 	{ Alt|ControlMask,              XK_Delete, spawn,          {.v = powermenu } },
-    /*
-	{ Alt|ControlMask,              XK_BackSpace, quit,        {0} },
-    */
 };
 
 /* button definitions */
