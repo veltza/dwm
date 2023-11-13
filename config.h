@@ -85,8 +85,8 @@ typedef struct {
 	const char *name;
 	const void *cmd;
 } Sp;
-const char *spcmd1[] = {"st", "-n", "spterm", "-g", "124x34", NULL };
-const char *spcmd2[] = {"st", "-n", "spfm", "-g", "142x40", "-e", "lf - File Manager", NULL };
+const char *spcmd1[] = {"st", "-A", "0.95", "-n", "spterm", "-g", "124x34", NULL };
+const char *spcmd2[] = {"st", "-A", "0.95", "-n", "spfm", "-g", "142x40", "-e", "lf - File Manager", NULL };
 const char *spcmd3[] = {"qalculate-gtk", NULL };
 static Sp scratchpads[] = {
 	/* name          cmd  */
@@ -113,7 +113,7 @@ static const Rule rules[] = {
 	{ "firefox",            NULL,      NULL,               0,        0,            0,           0,        1,          -1 },
 	{ "Chromium",           NULL,      NULL,               0,        0,            0,           0,        1,          -1 },
 	{ "mpv",                NULL,      NULL,               0,        0,            0,           0,        0,          -1 },
-	{ "st-256color",        NULL,      NULL,               0,        0,            0,           1,        0,          -1 },
+	{ "St",                 NULL,      NULL,               0,        0,            0,           1,        0,          -1 },
 	{ NULL,                 NULL,     "Event Tester",      0,        0,            0,           0,        1,          -1 }, /* xev */
 	{ "Dragon-drop",        NULL,      NULL,               0,        0,            1,           0,        1,          -1 },
 	{ "Pinentry-gtk-2",     NULL,      NULL,               0,        0,            1,           0,        1,          -1 },
