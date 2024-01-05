@@ -43,8 +43,8 @@ static const char *fonts[]          = {
 const int enablecolorfonts          = 1;  /* color fonts require patched libxft (libxft-bgra) */
 const int removevs16codepoints      = 1;  /* remove VS16 and zero-width-joiner codepoints and glyphs from emojis */
 
-#define NOTIFYFONT                    "JetBrainsMono NF 12"
-static const char dmenufont[]       = "JetBrainsMono NF:size=10.5:antialias=true";
+#define NOTIFYFONT                    "JetBrainsMono Nerd Font 12"
+static const char dmenufont[]       = "JetBrainsMono Nerd Font:size=10.5:antialias=true";
 static const char dmenuheight[]     = "23";
 
 #include "themes/grey-white.h"
