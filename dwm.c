@@ -1693,8 +1693,11 @@ fake_signal(void)
 void
 focus(Client *c)
 {
-	if (!c || !ISVISIBLE(c))
-		for (c = selmon->stack; c && (!ISVISIBLE(c) || HIDDEN(c)); c = c->snext);
+	if (!c || !ISVISIBLE(c)) {
+		for (c = selmon->stack; c && (!ISVISIBLE(c) || HIDDEN(c) || (c->issticky && c != selmon->sel)); c = c->snext);
+		if (!c)
+			for (c = selmon->stack; c && (!ISVISIBLE(c) || HIDDEN(c)); c = c->snext);
+	}
 	if (selmon->sel && selmon->sel != c) {
 		losefullscreen(c);
 		if (selmon->hidsel && (!c || c->mon == selmon)) {
