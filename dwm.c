@@ -349,7 +349,7 @@ static void tag(const Arg *arg);
 static void tagmon(const Arg *arg);
 static Client *termforwin(const Client *c);
 static int tilepos(Client *c);
-static void togglealttag();
+static void togglealttag(const Arg *arg);
 static void togglebar(const Arg *arg);
 static void togglefakefullscreen(const Arg *arg);
 static void togglefloating(const Arg *arg);
@@ -3830,7 +3830,7 @@ tilepos(Client *c)
 }
 
 void
-togglealttag()
+togglealttag(const Arg *arg)
 {
 	selmon->alttag = !selmon->alttag;
 	drawbar(selmon);
