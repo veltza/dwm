@@ -3413,9 +3413,27 @@ setmfact(const Arg *arg)
 void
 setsystraytimer(void)
 {
-	if (!systraytimer) {
-		systraytimer = 1;
-		spawn(&((Arg){ .v = (const char*[]){ "dwm-refreshsystray", NULL } }));
+	struct sigaction sa;
+	struct timespec t = { .tv_sec = 1, .tv_nsec = 0 };
+	char *refreshcmd[] = { "xsetroot", "-name", "fsignal:refreshsystray", NULL };
+
+	if (systraytimer)
+		return;
+
+	systraytimer = 1;
+
+	if (fork() == 0) {
+		if (dpy)
+			close(ConnectionNumber(dpy));
+		setsid();
+
+		sigemptyset(&sa.sa_mask);
+		sa.sa_flags = 0;
+		sa.sa_handler = SIG_DFL;
+		sigaction(SIGCHLD, &sa, NULL);
+
+		while (nanosleep(&t, &t) == -1);
+		execvp(refreshcmd[0], refreshcmd);
 	}
 }
 
