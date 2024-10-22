@@ -3434,6 +3434,7 @@ setsystraytimer(void)
 
 		while (nanosleep(&t, &t) == -1);
 		execvp(refreshcmd[0], refreshcmd);
+		_exit(1);
 	}
 }
 
