@@ -913,11 +913,18 @@ clientmessage(XEvent *e)
 				|| (cme->data.l[0] == 2 /* _NET_WM_STATE_TOGGLE */ && !c->isfullscreen)));
 		}
 	} else if (cme->message_type == netatom[NetActiveWindow]) {
-		for (i = 0; i < LENGTH(tags) && !((1 << i) & c->tags); i++);
-		if (i < LENGTH(tags)) {
-			const Arg a = {.ui = 1 << i};
-			selmon = c->mon;
-			view(&a);
+		for (i = 0; i < NUMTAGS && !((1 << i) & c->tags); i++);
+		if (i < NUMTAGS) {
+			if (i >= LENGTH(tags)) {
+				/* active scratchpad window */
+				selmon->tagset[selmon->seltags] |= (1 << i);
+				focus(NULL);
+				arrange(selmon);
+			} else {
+				selmon = c->mon;
+				view(&((Arg) { .ui = 1 << i }));
+			}
+			showwin(c);
 			focus(c);
 			restack(selmon);
 		}
