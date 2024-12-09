@@ -33,15 +33,16 @@ static const int attachmode         = 4;         /* default attach mode: 0 = dwm
 #define SHOWWINICON 1                            /* 0 means no winicon */
 
 static const char *fonts[]          = {
-    "Mononoki Nerd Font:size=11:antialias=true",            /* tags, layout */
-    "Mononoki Nerd Font:size=10:antialias=true",            /* status monitor */
-    "Fira Sans Dwm:size=10.3:antialias=true",               /* window titles */
-    //"Symbola:size=13.5:antialias=true",                   /* outline emojis */
-    "Noto Color Emoji:size=10:antialias=true:autohint=true" /* color emojis */
+    "Mononoki Nerd Font:size=11:antialias=true",                         /* tags, layout */
+    "Mononoki Nerd Font:size=10:antialias=true",                         /* status monitor */
+    "Fira Sans Dwm:size=10.3:antialias=true",                            /* window titles */
+    "Noto Sans CJK JP:size=9:style=Medium:antialias=true:autohint=true", /* cjk font */
+    //"Symbola:size=13.5:antialias=true",                                /* outline emojis */
+    "Noto Color Emoji:size=10:antialias=true:autohint=true"              /* color emojis */
 };
 
-const int enablecolorfonts          = 1;  /* color fonts require patched libxft (libxft-bgra) */
-const int removevs16codepoints      = 1;  /* remove VS16 and zero-width-joiner codepoints and glyphs from emojis */
+const int enablecolorfonts          = 1;  /* color fonts require libxft 2.3.5 or newer */
+const int removevs16codepoints      = 1;  /* remove VS15, VS16 and zero-width-joiner codepoints/glyphs from emojis */
 
 #define NOTIFYFONT                    "JetBrainsMono Nerd Font 12"
 static const char dmenufont[]       = "JetBrainsMono Nerd Font:size=10.5:antialias=true";
@@ -86,7 +87,7 @@ typedef struct {
 	const void *cmd;
 } Sp;
 const char *spcmd1[] = {"st", "-A", "0.95", "-n", "spterm", "-g", "124x34", NULL };
-const char *spcmd2[] = {"st", "-A", "0.95", "-n", "spfm", "-g", "142x40", "-e", "lf - File Manager", NULL };
+const char *spcmd2[] = {"st", "-A", "0.95", "-n", "spfm", "-g", "142x42", "-e", "lf - File Manager", NULL };
 const char *spcmd3[] = {"qalculate-gtk", NULL };
 static Sp scratchpads[] = {
 	/* name          cmd  */
@@ -119,7 +120,7 @@ static const Rule rules[] = {
 	{ "Pinentry-gtk-2",     NULL,      NULL,               0,        0,            1,           0,        1,          -1 },
 	{ "Gnome-calculator",   NULL,      NULL,               0,        0,            1,           0,        0,          -1 },
 	{ "Galculator",         NULL,      NULL,               0,        0,            1,           0,        0,          -1 },
-	{ "Pavucontrol",        NULL,      NULL,               0,        0,            1,           0,        0,          -1 },
+	{ "pavucontrol",        NULL,      NULL,               0,        0,            1,           0,        0,          -1 },
 	{ "flameshot",          NULL,      NULL,               0,        0,            1,           0,        0,          -1 },
 	{ "Yad",                NULL,      NULL,               0,        0,            1,           0,        0,          -1 },
 	{ NULL,                 "spterm",  NULL,         SPTAG(0),       0,            1,           0,        0,          -1 },

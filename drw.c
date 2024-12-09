@@ -402,10 +402,11 @@ drw_text(Drw *drw, int x, int y, unsigned int w, unsigned int h, unsigned int lp
 			if (len) {
 				if (removevs16codepoints) {
 					for (n = 0, m = 0; m <= len-3;) {
-						/* VS16 = ef b8 8f, zero width joiner = e2 80 8d */
+						/* VS15 = ef b8 8e, VS16 = ef b8 8f, zero width joiner = e2 80 8d */
 						if ((unsigned char)utf8str[m] == 0xef &&
 							    (unsigned char)utf8str[m+1] == 0xb8 &&
-							    (unsigned char)utf8str[m+2] == 0x8f)
+							    ((unsigned char)utf8str[m+2] == 0x8e ||
+							     (unsigned char)utf8str[m+2] == 0x8f))
 							m += 3;
 						else if ((unsigned char)utf8str[m] == 0xe2 &&
 							    (unsigned char)utf8str[m+1] == 0x80 &&
