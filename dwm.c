@@ -2162,7 +2162,7 @@ void
 incnmaster(const Arg *arg)
 {
 	char msg[256];
-	const char *cmd[] = { "/usr/bin/dunstify", "-t", "1500", "-r", "50000", "--icon=no-icon", "", msg, NULL };
+	const char *cmd[] = { "/usr/bin/dunstify", "-t", "1500", "-r", "50000", "", msg, NULL };
 
 	selmon->nmaster = selmon->pertag->nmasters[selmon->pertag->curtag] = MAX(selmon->nmaster + arg->i, 0);
 	arrange(selmon);
