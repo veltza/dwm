@@ -603,7 +603,7 @@ aspectresize(const Arg *arg) {
 	char s[80];
 	Client *c = selmon->sel;
 	if (c && arg) {
-		sprintf(s, "0x 0y %dw %dh", arg->i * c->w / c->h, arg->i);
+		snprintf(s, sizeof(s), "0x 0y %dw %dh", arg->i * c->w / c->h, arg->i);
 		moveresize(&((Arg) { .v = s }));
 	}
 }
@@ -2216,6 +2216,7 @@ keypress(XEvent *e)
 void
 keyrelease(XEvent *e)
 {
+#if defined(__linux__)
 	XKeyEvent *ev;
 
 	ev = &e->xkey;
@@ -2223,6 +2224,7 @@ keyrelease(XEvent *e)
 		/* signal capslock block */
 		spawn(&((Arg){ .v = (const char*[]){ "sigdsblocks", "9", "1", NULL } }));
 	}
+#endif
 }
 
 void
@@ -3630,32 +3632,34 @@ showhide(Client *c)
 void
 sigdsblocks(const Arg *arg)
 {
-		static int fd = -1;
-		struct flock fl;
-		union sigval sv;
+#if defined(__linux__)
+	static int fd = -1;
+	struct flock fl;
+	union sigval sv;
 
-		if (!dsblockssig)
-				return;
+	if (!dsblockssig)
+		return;
+	fl.l_type = F_WRLCK;
+	fl.l_whence = SEEK_SET;
+	fl.l_start = 0;
+	fl.l_len = 0;
+	if (fd != -1) {
+		if (fcntl(fd, F_GETLK, &fl) != -1 && fl.l_type == F_WRLCK)
+			goto signal;
+		close(fd);
 		fl.l_type = F_WRLCK;
-		fl.l_whence = SEEK_SET;
-		fl.l_start = 0;
-		fl.l_len = 0;
-		if (fd != -1) {
-				if (fcntl(fd, F_GETLK, &fl) != -1 && fl.l_type == F_WRLCK)
-						goto signal;
-				close(fd);
-				fl.l_type = F_WRLCK;
-		}
-		if ((fd = open(DSBLOCKSLOCKFILE, O_RDONLY | O_CLOEXEC)) == -1)
-				return;
-		if (fcntl(fd, F_GETLK, &fl) == -1 || fl.l_type != F_WRLCK) {
-				close(fd);
-				fd = -1;
-				return;
-		}
+	}
+	if ((fd = open(DSBLOCKSLOCKFILE, O_RDONLY | O_CLOEXEC)) == -1)
+		return;
+	if (fcntl(fd, F_GETLK, &fl) == -1 || fl.l_type != F_WRLCK) {
+		close(fd);
+		fd = -1;
+		return;
+	}
 signal:
-		sv.sival_int = (dsblockssig << 8) | arg->i;
-		sigqueue(fl.l_pid, SIGRTMIN, sv);
+	sv.sival_int = (dsblockssig << 8) | arg->i;
+	sigqueue(fl.l_pid, SIGRTMIN, sv);
+#endif
 }
 
 int
@@ -4477,29 +4481,30 @@ updatestatus(void)
 	char rawstext[STATUSLENGTH];
 
 	if (gettextprop(root, XA_WM_NAME, rawstext, sizeof rawstext)) {
-			if (strncmp(rawstext, "fsignal:", 8) == 0)
-				return;
+		if (strncmp(rawstext, "fsignal:", 8) == 0)
+			return;
 
-			char stextp[STATUSLENGTH];
-			char *stp = stextp, *stc = stextc, *sts = stexts;
+		char stextp[STATUSLENGTH];
+		char *stp = stextp, *stc = stextc, *sts = stexts;
 
-			for (char *rst = rawstext; *rst != '\0'; rst++)
-					if ((unsigned char)*rst >= ' ')
-							*(stp++) = *(stc++) = *(sts++) = *rst;
-					else if ((unsigned char)*rst > DELIMITERENDCHAR)
-							*(stc++) = *rst;
-					else
-							*(sts++) = *rst;
-			*stp = *stc = *sts = '\0';
-			setfont(FontStatusMonitor);
-			wstext = TTEXTW(stextp) + LSPAD + RSPAD;
-			setfont(FontDefault);
+		for (char *rst = rawstext; *rst != '\0'; rst++) {
+			if ((unsigned char)*rst >= ' ')
+				*(stp++) = *(stc++) = *(sts++) = *rst;
+			else if ((unsigned char)*rst > DELIMITERENDCHAR)
+				*(stc++) = *rst;
+			else
+				*(sts++) = *rst;
+		}
+		*stp = *stc = *sts = '\0';
+		setfont(FontStatusMonitor);
+		wstext = TTEXTW(stextp) + LSPAD + RSPAD;
+		setfont(FontDefault);
 	} else {
-			strcpy(stextc, "dwm-"VERSION);
-			strcpy(stexts, stextc);
-			setfont(FontStatusMonitor);
-			wstext = TTEXTW(stextc) + LSPAD + RSPAD;
-			setfont(FontDefault);
+		snprintf(stextc, sizeof(stextc), "%s", "dwm-"VERSION);
+		snprintf(stexts, sizeof(stexts), "%s", stextc);
+		setfont(FontStatusMonitor);
+		wstext = TTEXTW(stextc) + LSPAD + RSPAD;
+		setfont(FontDefault);
 	}
 	drawbar(selmon);
 	if (showsystray && systrayonleft && wstext != oldw)
@@ -4748,18 +4753,18 @@ winpid(Window w)
 #endif /* __linux__ */
 
 #ifdef __OpenBSD__
-		Atom type;
-		int format;
-		unsigned long len, bytes;
-		unsigned char *prop;
-		pid_t ret;
+	Atom type;
+	int format;
+	unsigned long len, bytes;
+	unsigned char *prop;
+	pid_t ret;
 
-		if (XGetWindowProperty(dpy, w, XInternAtom(dpy, "_NET_WM_PID", 0), 0, 1, False, AnyPropertyType, &type, &format, &len, &bytes, &prop) != Success || !prop)
-			   return 0;
+	if (XGetWindowProperty(dpy, w, XInternAtom(dpy, "_NET_WM_PID", 0), 0, 1, False, AnyPropertyType, &type, &format, &len, &bytes, &prop) != Success || !prop)
+		return 0;
 
-		ret = *(pid_t*)prop;
-		XFree(prop);
-		result = ret;
+	ret = *(pid_t*)prop;
+	XFree(prop);
+	result = ret;
 
 #endif /* __OpenBSD__ */
 	return result;
