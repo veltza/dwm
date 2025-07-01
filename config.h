@@ -86,7 +86,7 @@ typedef struct {
 	const char *name;
 	const void *cmd;
 } Sp;
-const char *spcmd1[] = {"st", "-A", "0.95", "-n", "spterm", "-g", "124x34", NULL };
+const char *spcmd1[] = {"st", "-A", "0.95", "-n", "spterm", "-g", "125x38", NULL };
 const char *spcmd2[] = {"st", "-A", "0.95", "-n", "spfm", "-g", "142x42", "-e", "lf - File Manager", NULL };
 const char *spcmd3[] = {"qalculate-gtk", NULL };
 static Sp scratchpads[] = {
@@ -438,25 +438,25 @@ static const Button buttons[] = {
 
 /* signal functions */
 void
-restart(const Arg *arg)
+sigrestart(const Arg *arg)
 {
 	quit(&((Arg){.i = EXIT_RESTART}));
 }
 
 void
-poweroff(const Arg *arg)
+sigpoweroff(const Arg *arg)
 {
 	quit(&((Arg){.i = EXIT_POWEROFF}));
 }
 
 void
-reboot(const Arg *arg)
+sigreboot(const Arg *arg)
 {
 	quit(&((Arg){.i = EXIT_REBOOT}));
 }
 
 void
-refreshsystrayhandler(const Arg *arg)
+sigrefreshsystrayhandler(const Arg *arg)
 {
 	systraytimer = 0;
 	refreshsystray();
@@ -468,8 +468,8 @@ refreshsystrayhandler(const Arg *arg)
 static Signal signals[] = {
 	/* signum           function */
 	{ "quit",           quit },
-	{ "restart",        restart },
-	{ "poweroff",       poweroff },
-	{ "reboot",         reboot },
-	{ "refreshsystray", refreshsystrayhandler },
+	{ "restart",        sigrestart },
+	{ "poweroff",       sigpoweroff },
+	{ "reboot",         sigreboot },
+	{ "refreshsystray", sigrefreshsystrayhandler },
 };
