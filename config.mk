@@ -24,6 +24,13 @@ FREETYPEINC = /usr/include/freetype2
 IMLIB2INC = `$(PKG_CONFIG) --cflags imlib2`
 IMLIB2LIB = `$(PKG_CONFIG) --libs imlib2`
 
+# FreeBSD (uncomment)
+#X11INC = /usr/local/include
+#X11LIB = /usr/local/lib
+#FREETYPEINC = /usr/local/include/freetype2
+#PROCSTAT = -lprocstat
+#BSDFLAGS = -D__BSD_VISIBLE
+
 # OpenBSD (uncomment)
 #FREETYPEINC = ${X11INC}/freetype2
 #KVMLIB = -lkvm
@@ -31,10 +38,10 @@ IMLIB2LIB = `$(PKG_CONFIG) --libs imlib2`
 
 # includes and libs
 INCS = -I${X11INC} -I${FREETYPEINC} ${IMLIB2INC}
-LIBS = -L${X11LIB} -lX11 ${XINERAMALIBS} ${FREETYPELIBS} ${IMLIB2LIB} -lXrender -lX11-xcb -lxcb -lxcb-res ${KVMLIB}
+LIBS = -L${X11LIB} -lX11 ${XINERAMALIBS} ${FREETYPELIBS} ${IMLIB2LIB} -lXrender -lX11-xcb -lxcb -lxcb-res ${KVMLIB} ${PROCSTAT}
 
 # flags
-CPPFLAGS = -D_DEFAULT_SOURCE -D_BSD_SOURCE -D_XOPEN_SOURCE=700L -DVERSION=\"${VERSION}\" ${XINERAMAFLAGS}
+CPPFLAGS = -D_DEFAULT_SOURCE -D_BSD_SOURCE -D_XOPEN_SOURCE=700L -DVERSION=\"${VERSION}\" ${XINERAMAFLAGS} ${BSDFLAGS}
 #CFLAGS   = -g -std=c99 -pedantic -Wall -O0 ${INCS} ${CPPFLAGS}
 CFLAGS   = -std=c99 -pedantic -Wall -Wno-deprecated-declarations -O2 -ftree-vectorize -march=native ${INCS} ${CPPFLAGS}
 LDFLAGS  = ${LIBS}

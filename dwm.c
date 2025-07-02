@@ -48,6 +48,12 @@
 #include <sys/sysctl.h>
 #include <kvm.h>
 #endif /* __OpenBSD */
+#ifdef __FreeBSD__
+#include <sys/param.h>
+#include <sys/user.h>
+#include <sys/sysctl.h>
+#include <libprocstat.h>
+#endif /* __FreeBSD */
 #include <fcntl.h>
 #include <time.h>
 
@@ -2010,6 +2016,20 @@ getparentprocess(pid_t p)
 	kp = kvm_getprocs(kd, KERN_PROC_PID, p, sizeof(*kp), &n);
 	v = kp->p_ppid;
 #endif /* __OpenBSD__ */
+
+#ifdef __FreeBSD__
+	struct procstat *procstat;
+	struct kinfo_proc *procs;
+	unsigned int count;
+
+	if ((procstat = procstat_open_sysctl())) {
+		if ((procs = procstat_getprocs(procstat, KERN_PROC_PID, p, &count))) {
+			v = procs->ki_ppid;
+			procstat_freeprocs(procstat, procs);
+		}
+		procstat_close(procstat);
+	}
+#endif /* __FreeBSD__ */
 
 	return (pid_t)v;
 }
@@ -4723,7 +4743,7 @@ winpid(Window w)
 {
 	pid_t result = 0;
 
-#ifdef __linux__
+#if defined(__linux__)
 	xcb_res_client_id_spec_t spec = {0};
 	spec.client = w;
 	spec.mask = XCB_RES_CLIENT_ID_MASK_LOCAL_CLIENT_PID;
@@ -4752,7 +4772,7 @@ winpid(Window w)
 
 #endif /* __linux__ */
 
-#ifdef __OpenBSD__
+#if defined(__OpenBSD__) || defined(__FreeBSD__)
 	Atom type;
 	int format;
 	unsigned long len, bytes;
@@ -4766,7 +4786,8 @@ winpid(Window w)
 	XFree(prop);
 	result = ret;
 
-#endif /* __OpenBSD__ */
+#endif /* __OpenBSD__ || __FreeBSD__ */
+
 	return result;
 }
 
