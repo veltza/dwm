@@ -39,8 +39,9 @@ This is my personal fork with following patches:
 + systray-dsblocks
 + tagintostack-allmaster
 + winicon
++ zero depth safeguard
 
-Some patches are rewritten or modified to work together.
+Some patches have been reworked to operate seamlessly together.
 
 
 Requirements
