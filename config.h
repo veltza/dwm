@@ -132,6 +132,9 @@ static const Rule rules[] = {
 static const float mfact     = 0.55; /* factor of master area size [0.05..0.95] */
 static const int nmaster     = 1;    /* number of clients in master area */
 static const int resizehints = 1;    /* 1 means respect size hints in tiled resizals */
+static const int refreshrate = 120;  /* refresh rate (per second) for client move/resize */
+static const int refreshrate_dragmfact = 40; /* refresh rate (per second) for dragmfact */
+static const int refreshrate_dragcfact = 60; /* refresh rate (per second) for dragcfact */
 
 struct Pertag {
 	unsigned int curtag, prevtag; /* current and previous tag */
@@ -426,14 +429,14 @@ static const Button buttons[] = {
 	{ ClkClientWin,         MODKEY,             Button1,    movemouse,      {0} },
 	{ ClkClientWin,         MODKEY,             Button2,    togglefloating, {0} },
 	{ ClkClientWin,         MODKEY,             Button3,    resizemouse,    {0} },
-	{ ClkClientWin,         MODKEY|ShiftMask,   Button1,    dragmfact,      {0} },
-	{ ClkClientWin,         MODKEY|ShiftMask,   Button3,    dragcfact,      {0} },
+	{ ClkClientWin,         MODKEY|ControlMask, Button1,    dragmfact,      {0} },
+	{ ClkClientWin,         MODKEY|ControlMask, Button3,    dragcfact,      {0} },
 	{ ClkTagBar,            0,                  Button1,    view,           {0} },
 	{ ClkTagBar,            0,                  Button3,    toggleview,     {0} },
 	{ ClkTagBar,            MODKEY,             Button1,    tag,            {0} },
 	{ ClkTagBar,            MODKEY,             Button3,    toggletag,      {0} },
 	{ ClkRootWin,           0,                  Button3,    spawn,          {.v = xmenuapps } },
-	{ ClkRootWin,           MODKEY|ShiftMask,   Button1,    dragmfact,      {0} },
+	{ ClkRootWin,           MODKEY|ControlMask, Button1,    dragmfact,      {0} },
 };
 
 /* signal functions */
