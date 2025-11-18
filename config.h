@@ -89,11 +89,13 @@ typedef struct {
 const char *spcmd1[] = {"st", "-A", "0.95", "-n", "spterm", "-g", "125x38", NULL };
 const char *spcmd2[] = {"st", "-A", "0.95", "-n", "spfm", "-g", "142x42", "-e", "lf - File Manager", NULL };
 const char *spcmd3[] = {"qalculate-gtk", NULL };
+const char *spcmd4[] = {"easyeffects", NULL };
 static Sp scratchpads[] = {
 	/* name          cmd  */
 	{"spterm",      spcmd1},
 	{"splf",        spcmd2},
 	{"spcalc",      spcmd3},
+	{"spee",        spcmd4},
 };
 
 /* tagging */
@@ -126,6 +128,7 @@ static const Rule rules[] = {
 	{ NULL,                 "spterm",  NULL,         SPTAG(0),       0,            1,           0,        0,          -1 },
 	{ NULL,                 "spfm",    NULL,         SPTAG(1),       0,            1,           0,        0,          -1 },
 	{ "Qalculate",          NULL,      NULL,         SPTAG(2),       0,            1,           0,        0,          -1 },
+	{ "easyeffects",        NULL,      NULL,         SPTAG(3),       0,            1,           0,        0,          -1 },
 };
 
 /* layout(s) */
@@ -371,6 +374,7 @@ static const Key keys[] = {
 	{ MODKEY,                       XK_s,      togglescratch,  {.ui = 0 } },
 	{ MODKEY,                       XK_e,      togglescratch,  {.ui = 1 } },
 	{ MODKEY,                       XK_c,      togglescratch,  {.ui = 2 } },
+	{ MODKEY|ControlMask,           XK_e,      togglescratch,  {.ui = 3 } },
 	TAGKEYS(                        XK_1,                      0)
 	TAGKEYS(                        XK_2,                      1)
 	TAGKEYS(                        XK_3,                      2)
