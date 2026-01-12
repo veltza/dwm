@@ -223,6 +223,7 @@ static const Attach attachs[] = {
 #define MODKEY Mod4Mask
 #define TAGKEYS(KEY,TAG) \
 	{ MODKEY,                       KEY,      view,           {.ui = 1 << TAG} }, \
+	{ MODKEY|AltGr,                 KEY,      toggleview,     {.ui = 1 << TAG} }, \
 	{ MODKEY|ControlMask,           KEY,      toggleview,     {.ui = 1 << TAG} }, \
 	{ MODKEY|ShiftMask,             KEY,      tag,            {.ui = 1 << TAG} }, \
 	{ MODKEY|ControlMask|ShiftMask, KEY,      toggletag,      {.ui = 1 << TAG} },
@@ -394,21 +395,15 @@ static const Key keys[] = {
 	{ ShiftMask,                    XK_Print,  spawn,          {.v = printscrscr } },
 	{ Alt,                          XK_Print,  spawn,          {.v = printscrwin } },
 	{ ControlMask,                  XK_Print,  spawn,          {.v = printscrsel } },
-	{ MODKEY,                       XK_F4,     spawn,          {.v = backlightup } },
-	{ MODKEY,                       XK_F3,     spawn,          {.v = backlightdown } },
-	{ MODKEY|ShiftMask,             XK_F4,     spawn,          {.v = backlightup1 } },
-	{ MODKEY|ShiftMask,             XK_F3,     spawn,          {.v = backlightdown1 } },
 	{ 0, XF86XK_MonBrightnessUp,               spawn,          {.v = backlightup } },
 	{ 0, XF86XK_MonBrightnessDown,             spawn,          {.v = backlightdown } },
+	{ ShiftMask, XF86XK_MonBrightnessUp,       spawn,          {.v = backlightup1 } },
+	{ ShiftMask, XF86XK_MonBrightnessDown,     spawn,          {.v = backlightdown1 } },
 	{ 0, XF86XK_AudioRaiseVolume,              spawn,          {.v = volumeup } },
 	{ 0, XF86XK_AudioLowerVolume,              spawn,          {.v = volumedown } },
+	{ ShiftMask, XF86XK_AudioRaiseVolume,      spawn,          {.v = volumeboostup } },
+	{ ShiftMask, XF86XK_AudioLowerVolume,      spawn,          {.v = volumeboostdown } },
 	{ 0, XF86XK_AudioMute,                     spawn,          {.v = volumemute } },
-	{ MODKEY,                       XK_F9,     spawn,          {.v = volumemute } },
-	{ MODKEY|ShiftMask,             XK_F9,     spawn,          {.v = volumemute } },
-	{ MODKEY,                       XK_F11,    spawn,          {.v = volumeup } },
-	{ MODKEY,                       XK_F10,    spawn,          {.v = volumedown } },
-	{ MODKEY|ShiftMask,             XK_F11,    spawn,          {.v = volumeboostup } },
-	{ MODKEY|ShiftMask,             XK_F10,    spawn,          {.v = volumeboostdown } },
 	{ Alt|ControlMask,              XK_l,      spawn,          {.v = lock } },
 	{ MODKEY|ShiftMask|ControlMask, XK_r,      spawn,          SHCMD("dwm-restart") },
 	{ Alt|ControlMask,              XK_Delete, spawn,          {.v = powermenu } },
