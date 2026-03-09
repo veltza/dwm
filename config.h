@@ -120,6 +120,7 @@ static const Rule rules[] = {
 	{ NULL,                 NULL,     "Event Tester",      0,        0,            0,           0,        1,          -1 }, /* xev */
 	{ "Dragon-drop",        NULL,      NULL,               0,        0,            1,           0,        1,          -1 },
 	{ "Pinentry-gtk-2",     NULL,      NULL,               0,        0,            1,           0,        1,          -1 },
+	{ "Gcolor3",            NULL,      NULL,               0,        0,            1,           0,        0,          -1 },
 	{ "Gnome-calculator",   NULL,      NULL,               0,        0,            1,           0,        0,          -1 },
 	{ "Galculator",         NULL,      NULL,               0,        0,            1,           0,        0,          -1 },
 	{ "pavucontrol",        NULL,      NULL,               0,        0,            1,           0,        0,          -1 },
