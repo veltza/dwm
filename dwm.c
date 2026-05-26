@@ -780,8 +780,10 @@ buttonpress(XEvent *e)
 			return;
 		}
 	} else if ((c = wintoclient(ev->window))) {
-		if (focusonwheel || (ev->button != Button4 && ev->button != Button5))
+		if (focusonwheel || (ev->button != Button4 && ev->button != Button5)) {
 			focus(c);
+			restack(selmon);
+		}
 		XAllowEvents(dpy, ReplayPointer, CurrentTime);
 		click = ClkClientWin;
 	} else if (ev->window == systray->win) {
