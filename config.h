@@ -234,7 +234,7 @@ static const Attach attachs[] = {
 #define DMENUCMD(cmd) { cmd, "-m", dmenumon, "-fn", dmenufont, "-nb", normbgcolor, "-nf", normfgcolor, "-sb", selbgcolor, "-sf", selfgcolor, "-h", dmenuheight, NULL }
 
 /* commands */
-static char dmenumon[2]              = "0"; /* component of dmenucmd, manipulated in spawn() */
+static char dmenumon[8];             /* component of dmenucmd, manipulated in spawn() */
 static const char *dmenucmd[]        = DMENUCMD("dmenu_run");
 static const char *powermenu[]       = DMENUCMD("dwm-powermenu");
 static const char *attachmenucmd     = "dwm-attachmenu";
