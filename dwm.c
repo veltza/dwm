@@ -3403,8 +3403,8 @@ setlayout(const Arg *arg)
 		selmon->sellt = selmon->pertag->sellts[selmon->pertag->curtag] ^= 1;
 	if (arg && arg->v)
 		selmon->lt[selmon->sellt] = selmon->pertag->ltidxs[selmon->pertag->curtag][selmon->sellt] = (Layout *)arg->v;
-	strncpy(selmon->ltsymbol, selmon->lt[selmon->sellt]->symbol, sizeof selmon->ltsymbol-1);
-	selmon->ltsymbol[sizeof selmon->ltsymbol-1] = '\0';
+	strncpy(selmon->ltsymbol, selmon->lt[selmon->sellt]->symbol, sizeof(selmon->ltsymbol) - 1);
+	selmon->ltsymbol[sizeof(selmon->ltsymbol) - 1] = '\0';
 	setbordercolor(selmon->sel);
 	if (selmon->sel)
 		arrange(selmon);
