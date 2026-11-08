@@ -2918,13 +2918,12 @@ refreshsystray(void)
 void
 removesystrayicon(Client *i)
 {
-	unsigned int n;
 	Client **ii;
 	struct timespec t;
 
 	if (!showsystray || !i)
 		return;
-	for (n = 0, ii = &systray->icons; *ii && *ii != i; ii = &(*ii)->next, n++);
+	for (ii = &systray->icons; *ii && *ii != i; ii = &(*ii)->next);
 	if (isprocessrunning(i->pid)) {
 		clock_gettime(CLOCK_REALTIME, &t);
 		i->iconremoved = t.tv_sec * 1000000 + t.tv_nsec / 1000;
